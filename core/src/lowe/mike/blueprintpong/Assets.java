@@ -1,6 +1,5 @@
 package lowe.mike.blueprintpong;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
@@ -11,9 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.utils.Disposable;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.badlogic.gdx.utils.ObjectMap;
 
 /**
  * {@code Assets} provides access to assets, such as {@link Texture}s,
@@ -23,10 +20,12 @@ import java.util.Map;
  */
 public final class Assets implements Disposable {
 
-    private static final AssetDescriptor<Texture> BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
-            = new AssetDescriptor<Texture>("background.png", Texture.class);
     private static final AssetDescriptor<FreeTypeFontGenerator> FONT_GENERATOR_ASSET_DESCRIPTOR
             = new AssetDescriptor<FreeTypeFontGenerator>("BluprintDEMO.otf", FreeTypeFontGenerator.class);
+    private static final AssetDescriptor<Texture> SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
+            = new AssetDescriptor<Texture>("splash-background.png", Texture.class);
+    private static final AssetDescriptor<Texture> BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
+            = new AssetDescriptor<Texture>("background.png", Texture.class);
     private static final AssetDescriptor<Texture> BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR
             = new AssetDescriptor<Texture>("button-up.png", Texture.class);
     private static final AssetDescriptor<Texture> BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR
@@ -54,63 +53,36 @@ public final class Assets implements Disposable {
         FONT_PARAMETER.magFilter = Texture.TextureFilter.Linear;
     }
 
-    public final Texture backgroundTexture;
-    public final Texture buttonUpTexture;
-    public final Texture buttonDownTexture;
-    public final Texture lineTexture;
-    public final Texture paddleTexture;
-    public final Texture ballTexture;
-    public final Sound paddleHitSound;
-    public final Sound wallHitSound;
-    public final Sound pointScoredSound;
-
     private final AssetManager assetManager = new AssetManager();
-    private final FreeTypeFontGeneratorLoader loader
+    private final FreeTypeFontGeneratorLoader fontGeneratorLoader
             = new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver());
-    private final FreeTypeFontGenerator fontGenerator;
-    private final Map<Integer, BitmapFont> fonts = new HashMap<Integer, BitmapFont>();
+    private final ObjectMap<Integer, BitmapFont> fonts = new ObjectMap<Integer, BitmapFont>();
+    private FreeTypeFontGenerator fontGenerator;
+    private Texture splashBackgroundTexture;
+    private Texture backgroundTexture;
+    private Texture buttonUpTexture;
+    private Texture buttonDownTexture;
+    private Texture lineTexture;
+    private Texture paddleTexture;
+    private Texture ballTexture;
+    private Sound paddleHitSound;
+    private Sound wallHitSound;
+    private Sound pointScoredSound;
 
     /**
-     * Creates a new {@code Assets} instance and loads the assets
-     * used throughout the game.
+     * Creates a new {@code Assets} instance and loads the splash screen
+     * background {@link Texture}.
      */
     public Assets() {
-        // needed when using free type font generator
-        this.assetManager.setLoader(FreeTypeFontGenerator.class, this.loader);
+        this.assetManager.setLoader(FreeTypeFontGenerator.class, this.fontGeneratorLoader);
+        loadSplashBackgroundTexture();
+    }
 
-        loadAssets(
-                BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
-                FONT_GENERATOR_ASSET_DESCRIPTOR,
-                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
-                BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
-                LINE_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_TEXTURE_ASSET_DESCRIPTOR,
-                BALL_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
-                WALL_HIT_SOUND_ASSET_DESCRIPTOR,
-                POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
-
-        // need to wait before continuing
-        this.assetManager.finishLoading();
-
-        // assign loaded assets to variables
-        this.backgroundTexture = this.assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        this.fontGenerator = this.assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
-        this.buttonUpTexture = this.assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
-        this.buttonDownTexture = this.assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
-        this.lineTexture = this.assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
-        this.paddleTexture = this.assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
-        this.ballTexture = this.assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
-        this.paddleHitSound = this.assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
-        this.wallHitSound = this.assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
-        this.pointScoredSound = this.assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
-
-        // for smoothing textures
-        addTextureFilter(
-                this.backgroundTexture,
-                this.lineTexture,
-                this.paddleTexture,
-                this.ballTexture);
+    private void loadSplashBackgroundTexture() {
+        loadAssets(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.finishLoading();
+        splashBackgroundTexture = assetManager.get(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        smoothTextures(splashBackgroundTexture);
     }
 
     private void loadAssets(AssetDescriptor... assetDescriptors) {
@@ -119,10 +91,59 @@ public final class Assets implements Disposable {
         }
     }
 
-    private static void addTextureFilter(Texture... textures) {
+    private static void smoothTextures(Texture... textures) {
         for (Texture texture : textures) {
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         }
+    }
+
+    /**
+     * Start loading assets.
+     */
+    public void load() {
+        loadAssets(
+                FONT_GENERATOR_ASSET_DESCRIPTOR,
+                BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
+                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
+                BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
+                LINE_TEXTURE_ASSET_DESCRIPTOR,
+                PADDLE_TEXTURE_ASSET_DESCRIPTOR,
+                BALL_TEXTURE_ASSET_DESCRIPTOR,
+                PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
+                WALL_HIT_SOUND_ASSET_DESCRIPTOR,
+                POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
+    }
+
+    /**
+     * Continue loading assets.
+     *
+     * @return {@code true} if all loading is finished
+     */
+    public boolean update() {
+        if (assetManager.update()) {
+            assignLoadedAssetsToFields();
+            smoothTextures(
+                    backgroundTexture,
+                    lineTexture,
+                    paddleTexture,
+                    ballTexture);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void assignLoadedAssetsToFields() {
+        fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
+        backgroundTexture = assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        buttonUpTexture = assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
+        buttonDownTexture = assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
+        lineTexture = assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
+        paddleTexture = assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
+        ballTexture = assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
+        paddleHitSound = assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
+        wallHitSound = assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
+        pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
     }
 
     /**
@@ -142,6 +163,85 @@ public final class Assets implements Disposable {
         return font;
     }
 
+    /**
+     * @return the splash background {@link Texture}
+     */
+    public Texture getSplashBackgroundTexture() {
+        return splashBackgroundTexture;
+    }
+
+    /**
+     * Disposes the splash background {@link Texture}.
+     */
+    public void disposeSplashBackgroundTexture() {
+        if (assetManager.isLoaded(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName)) {
+            assetManager.unload(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName);
+        }
+    }
+
+    /**
+     * @return the background {@link Texture}
+     */
+    public Texture getBackgroundTexture() {
+        return backgroundTexture;
+    }
+
+    /**
+     * @return the button up {@link Texture}
+     */
+    public Texture getButtonUpTexture() {
+        return buttonUpTexture;
+    }
+
+    /**
+     * @return the button down {@link Texture}
+     */
+    public Texture getButtonDownTexture() {
+        return buttonDownTexture;
+    }
+
+    /**
+     * @return the line {@link Texture}
+     */
+    public Texture getLineTexture() {
+        return lineTexture;
+    }
+
+    /**
+     * @return the paddle {@link Texture}
+     */
+    public Texture getPaddleTexture() {
+        return paddleTexture;
+    }
+
+    /**
+     * @return the ball {@link Texture}
+     */
+    public Texture getBallTexture() {
+        return ballTexture;
+    }
+
+    /**
+     * @return the paddle hit {@link Sound}
+     */
+    public Sound getPaddleHitSound() {
+        return paddleHitSound;
+    }
+
+    /**
+     * @return the wall hit {@link Sound}
+     */
+    public Sound getWallHitSound() {
+        return wallHitSound;
+    }
+
+    /**
+     * @return the point scored {@link Sound}
+     */
+    public Sound getPointScoredSound() {
+        return pointScoredSound;
+    }
+
     @Override
     public void dispose() {
         assetManager.dispose();
@@ -150,8 +250,6 @@ public final class Assets implements Disposable {
         for (BitmapFont font : fonts.values()) {
             font.dispose();
         }
-
-        Gdx.app.log("Disposed", this.getClass().getName());
     }
 
 }

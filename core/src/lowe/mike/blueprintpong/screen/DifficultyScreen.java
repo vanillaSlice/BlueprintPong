@@ -56,7 +56,7 @@ public class DifficultyScreen extends ScreenAdapter {
         // don't need to use ppm as we aren't interacting with box2d here`
         this.viewport = new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH, BlueprintPongGame.VIRTUAL_HEIGHT, this.camera);
         this.stage = new Stage(this.viewport, spriteBatch);
-        this.background = new Image(assets.backgroundTexture);
+        this.background = new Image(assets.getBackgroundTexture());
 
         Label.LabelStyle lstyle = new Label.LabelStyle();
         lstyle.font = assets.generateFont((int) (viewport.getScreenWidth() / 6));
@@ -69,8 +69,8 @@ public class DifficultyScreen extends ScreenAdapter {
         style.fontColor = Color.WHITE;
         style.overFontColor = Color.BLACK;
         style.downFontColor = Color.BLACK;
-        style.up = new TextureRegionDrawable(new TextureRegion(assets.buttonUpTexture));
-        style.over = new TextureRegionDrawable(new TextureRegion(assets.buttonDownTexture));
+        style.up = new TextureRegionDrawable(new TextureRegion(assets.getButtonUpTexture()));
+        style.over = new TextureRegionDrawable(new TextureRegion(assets.getButtonDownTexture()));
         style.down = style.over;
 
         this.easyButton = new TextButton("Easy", style);

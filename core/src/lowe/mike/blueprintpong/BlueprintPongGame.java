@@ -1,11 +1,10 @@
 package lowe.mike.blueprintpong;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import lowe.mike.blueprintpong.screen.MainMenuScreen;
 import lowe.mike.blueprintpong.screen.ScreenManager;
+import lowe.mike.blueprintpong.screen.SplashScreen;
 
 /**
  * Main class for <i>Blueprint Pong</i> game.
@@ -26,14 +25,19 @@ public final class BlueprintPongGame extends Game {
     @Override
     public void create() {
         spriteBatch = new SpriteBatch();
-        assets = new Assets();
+        initialiseAssets();
         initialiseScreenManager();
+    }
+
+    private void initialiseAssets() {
+        assets = new Assets();
+        assets.load();
     }
 
     private void initialiseScreenManager() {
         screenManager = new ScreenManager(this);
-        MainMenuScreen mainMenuScreen = new MainMenuScreen(assets, spriteBatch, screenManager);
-        screenManager.setCurrentScreen(mainMenuScreen);
+        SplashScreen splashScreen = new SplashScreen(assets, spriteBatch, screenManager);
+        screenManager.setCurrentScreen(splashScreen);
     }
 
     @Override
@@ -41,8 +45,6 @@ public final class BlueprintPongGame extends Game {
         assets.dispose();
         spriteBatch.dispose();
         screenManager.dispose();
-
-        Gdx.app.log("Disposed", this.getClass().getName());
     }
 
 }

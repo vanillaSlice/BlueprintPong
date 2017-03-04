@@ -1,6 +1,5 @@
 package lowe.mike.blueprintpong.screen;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -44,7 +43,7 @@ public final class ScreenManager implements Disposable {
      * Removes and disposes the current {@link Screen}, if one exists.
      */
     public void removeCurrentScreen() {
-        if (screens.peek() != null) {
+        if (!screens.isEmpty()) {
             screens.pop().dispose();
         }
     }
@@ -54,7 +53,6 @@ public final class ScreenManager implements Disposable {
         for (Screen screen : screens) {
             screen.dispose();
         }
-        Gdx.app.log("Disposed", this.getClass().getName());
     }
 
 }
