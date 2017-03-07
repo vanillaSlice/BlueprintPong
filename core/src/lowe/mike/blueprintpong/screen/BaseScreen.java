@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -31,42 +32,57 @@ class BaseScreen extends ScreenAdapter {
     private static final float TEXT_BUTTON_PADDING = 10f;
     private static final TextButton.TextButtonStyle TEXT_BUTTON_STYLE
             = new TextButton.TextButtonStyle();
-    private static boolean TEXT_BUTTON_STYLE_INITIALISED;
 
     static {
         TEXT_BUTTON_STYLE.fontColor = Color.WHITE;
         TEXT_BUTTON_STYLE.downFontColor = Color.BLACK;
-        TEXT_BUTTON_STYLE.overFontColor = TEXT_BUTTON_STYLE.downFontColor;
-        TEXT_BUTTON_STYLE.checkedFontColor = TEXT_BUTTON_STYLE.downFontColor;
+        TEXT_BUTTON_STYLE.overFontColor = Color.BLACK;
+        TEXT_BUTTON_STYLE.checkedFontColor = Color.BLACK;
     }
 
+    final Assets assets;
     final SpriteBatch spriteBatch;
+    final ScreenManager screenManager;
     final OrthographicCamera camera = new OrthographicCamera();
     final Viewport viewport;
     final Stage stage;
 
+    private final Image background;
     private boolean isPaused;
 
     /**
-     * Creates a new {@code BaseScreen} given a {@link SpriteBatch}
+     * Creates a new {@code BaseScreen} given {@link Assets}, a {@link SpriteBatch}
      * and a {@link ScreenManager}.
      *
+     * @param assets        {@link Assets} containing assets used in the {@link Screen}
      * @param spriteBatch   {@link SpriteBatch} to add sprites to
+     * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      */
-    BaseScreen(SpriteBatch spriteBatch) {
+    BaseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
+        this.assets = assets;
         this.spriteBatch = spriteBatch;
+        this.screenManager = screenManager;
         this.camera.setToOrtho(false);
         this.viewport = new FitViewport(
                 BlueprintPongGame.VIRTUAL_WIDTH,
                 BlueprintPongGame.VIRTUAL_HEIGHT,
                 this.camera);
         this.stage = new Stage(this.viewport, this.spriteBatch);
-        Gdx.input.setInputProcessor(this.stage);
+        this.background = new Image(this.assets.getBackgroundTexture());
+        this.stage.addActor(this.background);
     }
 
     @Override
-    public void show() {
+    public final void show() {
         Gdx.input.setInputProcessor(this.stage);
+        showScreen();
+    }
+
+    /**
+     * Method that subclasses can override to determine what
+     * happens when this becomes the current {@link Screen}.
+     */
+    void showScreen() {
     }
 
     /**
@@ -85,7 +101,7 @@ class BaseScreen extends ScreenAdapter {
     }
 
     private BitmapFont generateFont(int fontSize) {
-        BitmapFont font = Assets.getInstance().generateFont(fontSize);
+        BitmapFont font = assets.generateFont(fontSize);
         font.getData().setScale(getXScale(), getYScale());
         return font;
     }
@@ -113,22 +129,14 @@ class BaseScreen extends ScreenAdapter {
      */
     final TextButton createTextButton(int fontSize, String text) {
         TEXT_BUTTON_STYLE.font = generateFont(fontSize);
-        checkTextButtonStyleInitialised();
+        TEXT_BUTTON_STYLE.up = getTextureRegionDrawable(assets.getButtonUpTexture());
+        TEXT_BUTTON_STYLE.down = getTextureRegionDrawable(assets.getButtonDownTexture());
+        TEXT_BUTTON_STYLE.over = TEXT_BUTTON_STYLE.down;
+        TEXT_BUTTON_STYLE.checked = TEXT_BUTTON_STYLE.down;
         TextButton textButton = new TextButton(text, TEXT_BUTTON_STYLE);
         textButton.padLeft(TEXT_BUTTON_PADDING);
         textButton.padRight(TEXT_BUTTON_PADDING);
         return textButton;
-    }
-
-    private void checkTextButtonStyleInitialised() {
-        if (TEXT_BUTTON_STYLE_INITIALISED) {
-            return;
-        }
-        TEXT_BUTTON_STYLE.up = getTextureRegionDrawable(Assets.getInstance().getButtonUpTexture());
-        TEXT_BUTTON_STYLE.down = getTextureRegionDrawable(Assets.getInstance().getButtonDownTexture());
-        TEXT_BUTTON_STYLE.over = TEXT_BUTTON_STYLE.down;
-        TEXT_BUTTON_STYLE.checked = TEXT_BUTTON_STYLE.down;
-        TEXT_BUTTON_STYLE_INITIALISED = true;
     }
 
     private TextureRegionDrawable getTextureRegionDrawable(Texture texture) {
@@ -138,14 +146,7 @@ class BaseScreen extends ScreenAdapter {
     @Override
     public final void resize(int width, int height) {
         viewport.update(width, height);
-        resizeAssets();
-    }
-
-    /**
-     * Method that subclasses can override to do any {@link Screen}
-     * specific resizing.
-     */
-    void resizeAssets() {
+        background.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
     }
 
     @Override
@@ -187,15 +188,6 @@ class BaseScreen extends ScreenAdapter {
     @Override
     public final void dispose() {
         stage.dispose();
-        disposeAssets();
-        Gdx.app.log("Disposed", this.getClass().getName());
-    }
-
-    /**
-     * Method that subclasses can override to do any {@link Screen}
-     * specific disposal.
-     */
-    void disposeAssets() {
     }
 
 }

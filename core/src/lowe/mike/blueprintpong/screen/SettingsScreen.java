@@ -3,6 +3,8 @@ package lowe.mike.blueprintpong.screen;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import lowe.mike.blueprintpong.Assets;
+
 /**
  * Settings screen to show settings that the user can change.
  *
@@ -21,8 +23,8 @@ final class SettingsScreen extends BaseScreen {
      *
      * @param spriteBatch   {@link SpriteBatch} to add sprites to
      */
-    SettingsScreen(SpriteBatch spriteBatch) {
-        super(spriteBatch);
+    SettingsScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
+        super(assets, spriteBatch, screenManager);
     }
 
 }

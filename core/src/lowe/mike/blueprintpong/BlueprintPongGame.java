@@ -24,10 +24,10 @@ public final class BlueprintPongGame extends Game {
 
     @Override
     public void create() {
-        assets = Assets.getInstance();
+        assets = new Assets();
         spriteBatch = new SpriteBatch();
-        screenManager = ScreenManager.initialise(this);
-        screenManager.setScreen(new SplashScreen(spriteBatch));
+        screenManager = new ScreenManager(this);
+        screenManager.setScreen(new SplashScreen(assets, spriteBatch, screenManager));
     }
 
     @Override

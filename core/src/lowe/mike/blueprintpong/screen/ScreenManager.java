@@ -10,45 +10,21 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
 /**
  * {@code ScreenManager} is used to manage {@link Screen}s in
  * the <i>Blueprint Pong</i> game.
- * <p>
- * {@code ScreenManager} is a singleton.
  *
  * @author Mike Lowe
  */
 public final class ScreenManager implements Disposable {
 
-    private static ScreenManager instance;
-
     private final BlueprintPongGame game;
     private final Stack<Screen> screens = new Stack<Screen>();
 
     /**
-     * Initialises the {@code ScreenManager} with a reference to the
-     * {@link BlueprintPongGame} (note that only one instance will be created).
+     * Creates a new {@code ScreenManager} with a reference to the
+     * {@link BlueprintPongGame}.
      *
      * @param game reference to the {@link BlueprintPongGame}
-     * @return an instance of {@code ScreenManager}
      */
-    public static ScreenManager initialise(BlueprintPongGame game) {
-        if (instance == null) {
-            instance = new ScreenManager(game);
-        }
-        return instance;
-    }
-
-    /**
-     * @return an instance of {@code ScreenManager} (note that only one instance will be created)
-     * @throws IllegalStateException if {@code ScreenManager} has not be initialised
-     */
-    public static ScreenManager getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("ScreenManager has not been initialised");
-        } else {
-            return instance;
-        }
-    }
-
-    private ScreenManager(BlueprintPongGame game) {
+    public ScreenManager(BlueprintPongGame game) {
         this.game = game;
     }
 

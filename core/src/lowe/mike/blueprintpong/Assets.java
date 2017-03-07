@@ -15,17 +15,15 @@ import com.badlogic.gdx.utils.ObjectMap;
 /**
  * {@code Assets} provides access to assets, such as {@link Texture}s,
  * used in the <i>Blueprint Pong</i> game.
- * <p>
- * {@code Assets} is a singleton.
  *
  * @author Mike Lowe
  */
 public final class Assets implements Disposable {
 
-    private static Assets instance;
-
     private static final AssetDescriptor<FreeTypeFontGenerator> FONT_GENERATOR_ASSET_DESCRIPTOR
             = new AssetDescriptor<FreeTypeFontGenerator>("BluprintDEMO.otf", FreeTypeFontGenerator.class);
+    private static final AssetDescriptor<Texture> SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
+            = new AssetDescriptor<Texture>("splash-background.png", Texture.class);
     private static final AssetDescriptor<Texture> BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
             = new AssetDescriptor<Texture>("background.png", Texture.class);
     private static final AssetDescriptor<Texture> BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR
@@ -60,6 +58,7 @@ public final class Assets implements Disposable {
             = new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver());
     private final ObjectMap<Integer, BitmapFont> fonts = new ObjectMap<Integer, BitmapFont>();
     private FreeTypeFontGenerator fontGenerator;
+    private Texture splashBackgroundTexture;
     private Texture backgroundTexture;
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
@@ -71,92 +70,58 @@ public final class Assets implements Disposable {
     private Sound pointScoredSound;
 
     /**
-     * @return an instance of {@code Assets} (note that only one instance will be created)
+     * Creates a new {@code Assets} instance.
      */
-    public static Assets getInstance() {
-        if (instance == null) {
-            instance = new Assets();
-        }
-        return instance;
-    }
-
-    private Assets() {
+    public Assets() {
         this.assetManager.setLoader(FreeTypeFontGenerator.class, this.fontGeneratorLoader);
+        // load splash background to display while other assets are loading
+        loadSplashBackgroundTexture();
+        loadMainAssets();
+    }
+
+    private void loadSplashBackgroundTexture() {
+        assetManager.load(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.finishLoading();
+        splashBackgroundTexture = assetManager.get(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        splashBackgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    }
+
+    private void loadMainAssets() {
+        assetManager.load(FONT_GENERATOR_ASSET_DESCRIPTOR);
+        assetManager.load(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(LINE_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(BALL_TEXTURE_ASSET_DESCRIPTOR);
+        assetManager.load(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
+        assetManager.load(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
+        assetManager.load(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
     }
 
     /**
-     * Start loading assets.
-     */
-    public void load() {
-        loadAssets(
-                FONT_GENERATOR_ASSET_DESCRIPTOR,
-                BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
-                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
-                BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
-                LINE_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_TEXTURE_ASSET_DESCRIPTOR,
-                BALL_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
-                WALL_HIT_SOUND_ASSET_DESCRIPTOR,
-                POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
-    }
-
-    private void loadAssets(AssetDescriptor... assetDescriptors) {
-        for (AssetDescriptor assetDescriptor : assetDescriptors) {
-            assetManager.load(assetDescriptor);
-        }
-    }
-
-    /**
-     * Continue loading assets.
-     *
      * @return {@code true} if all loading is finished
      */
-    public boolean update() {
+    public boolean isFinishedLoading() {
         if (assetManager.update()) {
-            assignLoadedAssetsToFields();
-            addSmoothTextureFilter(
-                    backgroundTexture,
-                    lineTexture,
-                    paddleTexture,
-                    ballTexture);
+            fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
+            backgroundTexture = assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+            buttonUpTexture = assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
+            buttonDownTexture = assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
+            lineTexture = assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
+            paddleTexture = assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
+            ballTexture = assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
+            paddleHitSound = assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
+            wallHitSound = assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
+            pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
+            backgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            lineTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            paddleTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            ballTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
             return true;
         } else {
             return false;
         }
-    }
-
-    private void assignLoadedAssetsToFields() {
-        fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
-        backgroundTexture = assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        buttonUpTexture = assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
-        buttonDownTexture = assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
-        lineTexture = assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
-        paddleTexture = assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
-        ballTexture = assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
-        paddleHitSound = assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
-        wallHitSound = assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
-        pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
-    }
-
-    private static void addSmoothTextureFilter(Texture... textures) {
-        for (Texture texture : textures) {
-            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        }
-    }
-
-    /**
-     * Loads a {@link Texture} from a file.
-     *
-     * @param fileName the file name
-     * @return the {@link Texture}
-     */
-    public Texture loadTexture(String fileName) {
-        assetManager.load(fileName, Texture.class);
-        assetManager.finishLoading();
-        Texture texture = assetManager.get(fileName);
-        addSmoothTextureFilter(texture);
-        return texture;
     }
 
     /**
@@ -175,6 +140,13 @@ public final class Assets implements Disposable {
             fonts.put(size, font);
             return font;
         }
+    }
+
+    /**
+     * @return the splash background {@link Texture}
+     */
+    public Texture getSplashBackgroundTexture() {
+        return splashBackgroundTexture;
     }
 
     /**
@@ -238,6 +210,15 @@ public final class Assets implements Disposable {
      */
     public Sound getPointScoredSound() {
         return pointScoredSound;
+    }
+
+    /**
+     * Disposes the splash background {@link Texture}.
+     */
+    public void disposeSplashBackgroundTexture() {
+        if (assetManager.isLoaded(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName)) {
+            assetManager.unload(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName);
+        }
     }
 
     @Override

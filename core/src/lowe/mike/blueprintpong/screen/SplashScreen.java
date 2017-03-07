@@ -1,10 +1,10 @@
 package lowe.mike.blueprintpong.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -21,39 +21,34 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
  */
 public final class SplashScreen extends ScreenAdapter {
 
-    private static final String BACKGROUND_TEXTURE_PATH = "splash-background.png";
-
     private final Assets assets;
     private final SpriteBatch spriteBatch;
     private final ScreenManager screenManager;
     private final OrthographicCamera camera = new OrthographicCamera();
     private final Viewport viewport;
     private final Stage stage;
-    private final Texture backgroundTexture;
     private final Image background;
 
     /**
-     * Creates a new {@code SplashScreen} given a {@link SpriteBatch}.
+     * Creates a new {@code SplashScreen} given {@link Assets}, a {@link SpriteBatch}
+     * and a {@link ScreenManager}.
      *
-     * @param spriteBatch {@link SpriteBatch} to add sprites to
+     * @param assets        {@link Assets} containing assets used in the {@link Screen}
+     * @param spriteBatch   {@link SpriteBatch} to add sprites to
+     * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      */
-    public SplashScreen(SpriteBatch spriteBatch) {
-        // set up the screen
-        this.assets = Assets.getInstance();
+    public SplashScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
+        this.assets = assets;
         this.spriteBatch = spriteBatch;
-        this.screenManager = ScreenManager.getInstance();
+        this.screenManager = screenManager;
         this.camera.setToOrtho(false);
         this.viewport = new FitViewport(
                 BlueprintPongGame.VIRTUAL_WIDTH,
                 BlueprintPongGame.VIRTUAL_HEIGHT,
                 this.camera);
         this.stage = new Stage(this.viewport, this.spriteBatch);
-        this.backgroundTexture = this.assets.loadTexture(BACKGROUND_TEXTURE_PATH);
-        this.background = new Image(this.backgroundTexture);
+        this.background = new Image(this.assets.getSplashBackgroundTexture());
         this.stage.addActor(this.background);
-
-        // start loading the assets for the game
-        this.assets.load();
     }
 
     @Override
@@ -69,19 +64,19 @@ public final class SplashScreen extends ScreenAdapter {
         spriteBatch.setProjectionMatrix(camera.combined);
         stage.act(delta);
         stage.draw();
-        if (assets.update()) {
+        if (assets.isFinishedLoading()) {
             switchToMainMenuScreen();
         }
     }
 
     private void switchToMainMenuScreen() {
         screenManager.removeAndDisposeCurrentScreen();
-        screenManager.setScreen(new MainMenuScreen(spriteBatch));
+        screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
     @Override
     public void dispose() {
-        backgroundTexture.dispose();
+        assets.disposeSplashBackgroundTexture();
         stage.dispose();
     }
 
