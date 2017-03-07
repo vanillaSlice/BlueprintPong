@@ -18,7 +18,7 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
  * @author Mike Lowe
  */
 
-public final class MainMenuScreen extends BaseScreen {
+final class MainMenuScreen extends BaseScreen {
 
     // add screen portion fractions
 
@@ -31,12 +31,12 @@ public final class MainMenuScreen extends BaseScreen {
     private final Button playButton;
     private final Button settingsButton;
 
-    public MainMenuScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
-        super(assets, spriteBatch, screenManager);
-        this.background = new Image(assets.getBackgroundTexture());
-        this.titleLabel = initialiseLabel(viewport.getScreenWidth() / 6, BlueprintPongGame.TITLE);
-        this.playButton = initialiseTextButton(viewport.getScreenWidth() / 10, "Play");
-        this.settingsButton = initialiseTextButton(viewport.getScreenWidth() / 10, "Settings");
+    public MainMenuScreen(SpriteBatch spriteBatch) {
+        super(spriteBatch);
+        this.background = new Image(Assets.getInstance().getBackgroundTexture());
+        this.titleLabel = createLabel(viewport.getScreenWidth() / 6, BlueprintPongGame.TITLE);
+        this.playButton = createTextButton(viewport.getScreenWidth() / 10, "Play");
+        this.settingsButton = createTextButton(viewport.getScreenWidth() / 10, "Settings");
         this.stage.addActor(this.background);
         this.stage.addActor(getMenuTable());
 
@@ -87,8 +87,8 @@ public final class MainMenuScreen extends BaseScreen {
     //add buttons
 
     private void switchToDifficultyScreen() {
-        screenManager.removeCurrentScreen();
-        screenManager.setCurrentScreen(new DifficultyScreen(assets, spriteBatch, screenManager));
+       // ScreenManager.getInstance().removeAndDisposeCurrentScreen();
+        ScreenManager.getInstance().setScreen(new DifficultyScreen(spriteBatch, ScreenManager.getInstance()));
     }
 
     @Override

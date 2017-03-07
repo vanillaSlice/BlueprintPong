@@ -15,15 +15,17 @@ import com.badlogic.gdx.utils.ObjectMap;
 /**
  * {@code Assets} provides access to assets, such as {@link Texture}s,
  * used in the <i>Blueprint Pong</i> game.
+ * <p>
+ * {@code Assets} is a singleton.
  *
  * @author Mike Lowe
  */
 public final class Assets implements Disposable {
 
+    private static Assets instance;
+
     private static final AssetDescriptor<FreeTypeFontGenerator> FONT_GENERATOR_ASSET_DESCRIPTOR
             = new AssetDescriptor<FreeTypeFontGenerator>("BluprintDEMO.otf", FreeTypeFontGenerator.class);
-    private static final AssetDescriptor<Texture> SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
-            = new AssetDescriptor<Texture>("splash-background.png", Texture.class);
     private static final AssetDescriptor<Texture> BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
             = new AssetDescriptor<Texture>("background.png", Texture.class);
     private static final AssetDescriptor<Texture> BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR
@@ -58,7 +60,6 @@ public final class Assets implements Disposable {
             = new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver());
     private final ObjectMap<Integer, BitmapFont> fonts = new ObjectMap<Integer, BitmapFont>();
     private FreeTypeFontGenerator fontGenerator;
-    private Texture splashBackgroundTexture;
     private Texture backgroundTexture;
     private Texture buttonUpTexture;
     private Texture buttonDownTexture;
@@ -70,31 +71,17 @@ public final class Assets implements Disposable {
     private Sound pointScoredSound;
 
     /**
-     * Creates a new {@code Assets} instance and loads the splash screen
-     * background {@link Texture}.
+     * @return an instance of {@code Assets} (note that only one instance will be created)
      */
-    public Assets() {
+    public static Assets getInstance() {
+        if (instance == null) {
+            instance = new Assets();
+        }
+        return instance;
+    }
+
+    private Assets() {
         this.assetManager.setLoader(FreeTypeFontGenerator.class, this.fontGeneratorLoader);
-        loadSplashBackgroundTexture();
-    }
-
-    private void loadSplashBackgroundTexture() {
-        loadAssets(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.finishLoading();
-        splashBackgroundTexture = assetManager.get(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        smoothTextures(splashBackgroundTexture);
-    }
-
-    private void loadAssets(AssetDescriptor... assetDescriptors) {
-        for (AssetDescriptor assetDescriptor : assetDescriptors) {
-            assetManager.load(assetDescriptor);
-        }
-    }
-
-    private static void smoothTextures(Texture... textures) {
-        for (Texture texture : textures) {
-            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        }
     }
 
     /**
@@ -114,6 +101,12 @@ public final class Assets implements Disposable {
                 POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
     }
 
+    private void loadAssets(AssetDescriptor... assetDescriptors) {
+        for (AssetDescriptor assetDescriptor : assetDescriptors) {
+            assetManager.load(assetDescriptor);
+        }
+    }
+
     /**
      * Continue loading assets.
      *
@@ -122,7 +115,7 @@ public final class Assets implements Disposable {
     public boolean update() {
         if (assetManager.update()) {
             assignLoadedAssetsToFields();
-            smoothTextures(
+            addSmoothTextureFilter(
                     backgroundTexture,
                     lineTexture,
                     paddleTexture,
@@ -146,6 +139,26 @@ public final class Assets implements Disposable {
         pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
     }
 
+    private static void addSmoothTextureFilter(Texture... textures) {
+        for (Texture texture : textures) {
+            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
+    }
+
+    /**
+     * Loads a {@link Texture} from a file.
+     *
+     * @param fileName the file name
+     * @return the {@link Texture}
+     */
+    public Texture loadTexture(String fileName) {
+        assetManager.load(fileName, Texture.class);
+        assetManager.finishLoading();
+        Texture texture = assetManager.get(fileName);
+        addSmoothTextureFilter(texture);
+        return texture;
+    }
+
     /**
      * @param size size of the font to generate
      * @return a {@link BitmapFont}
@@ -155,27 +168,12 @@ public final class Assets implements Disposable {
         if (fonts.containsKey(size)) {
             return fonts.get(size);
         }
-
-        // generate a new font and cache it
-        FONT_PARAMETER.size = size;
-        BitmapFont font = fontGenerator.generateFont(FONT_PARAMETER);
-        fonts.put(size, font);
-        return font;
-    }
-
-    /**
-     * @return the splash background {@link Texture}
-     */
-    public Texture getSplashBackgroundTexture() {
-        return splashBackgroundTexture;
-    }
-
-    /**
-     * Disposes the splash background {@link Texture}.
-     */
-    public void disposeSplashBackgroundTexture() {
-        if (assetManager.isLoaded(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName)) {
-            assetManager.unload(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR.fileName);
+        // otherwise generate a new font and cache it
+        else {
+            FONT_PARAMETER.size = size;
+            BitmapFont font = fontGenerator.generateFont(FONT_PARAMETER);
+            fonts.put(size, font);
+            return font;
         }
     }
 

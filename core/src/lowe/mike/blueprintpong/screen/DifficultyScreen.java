@@ -26,13 +26,12 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
  * Created by mikelowe on 02/03/2017.
  */
 
-public class DifficultyScreen extends ScreenAdapter {
+final class DifficultyScreen extends ScreenAdapter {
 
     //Difficulty buttons
     //Back
     // Play
 
-    private final Assets assets;
     private final SpriteBatch spriteBatch;
     private final ScreenManager screenManager;
 
@@ -48,29 +47,28 @@ public class DifficultyScreen extends ScreenAdapter {
     private final Button backButton;
     private final Button playButton;
 
-    public DifficultyScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
-        this.assets = assets;
+    public DifficultyScreen(SpriteBatch spriteBatch, ScreenManager screenManager) {
         this.spriteBatch = spriteBatch;
         this.screenManager = screenManager;
 
         // don't need to use ppm as we aren't interacting with box2d here`
         this.viewport = new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH, BlueprintPongGame.VIRTUAL_HEIGHT, this.camera);
         this.stage = new Stage(this.viewport, spriteBatch);
-        this.background = new Image(assets.getBackgroundTexture());
+        this.background = new Image(Assets.getInstance().getBackgroundTexture());
 
         Label.LabelStyle lstyle = new Label.LabelStyle();
-        lstyle.font = assets.generateFont((int) (viewport.getScreenWidth() / 6));
+        lstyle.font = Assets.getInstance().generateFont((int) (viewport.getScreenWidth() / 6));
         lstyle.font.getData().setScale(viewport.getWorldWidth() / viewport.getScreenWidth(), viewport.getWorldHeight() / viewport.getScreenHeight());
         this.difficultyLabel = new Label("Difficulty", lstyle);
 
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-        style.font = assets.generateFont(viewport.getScreenWidth() / 10);
+        style.font = Assets.getInstance().generateFont(viewport.getScreenWidth() / 10);
         style.font.getData().setScale(viewport.getWorldWidth() / viewport.getScreenWidth(), viewport.getWorldHeight() / viewport.getScreenHeight());
         style.fontColor = Color.WHITE;
         style.overFontColor = Color.BLACK;
         style.downFontColor = Color.BLACK;
-        style.up = new TextureRegionDrawable(new TextureRegion(assets.getButtonUpTexture()));
-        style.over = new TextureRegionDrawable(new TextureRegion(assets.getButtonDownTexture()));
+        style.up = new TextureRegionDrawable(new TextureRegion(Assets.getInstance().getButtonUpTexture()));
+        style.over = new TextureRegionDrawable(new TextureRegion(Assets.getInstance().getButtonDownTexture()));
         style.down = style.over;
 
         this.easyButton = new TextButton("Easy", style);
@@ -120,8 +118,9 @@ public class DifficultyScreen extends ScreenAdapter {
     }
 
     private void switchToMainMenuScreen() {
-        screenManager.removeCurrentScreen();
-        screenManager.setCurrentScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
+       screenManager.switchToPreviousScreen();
+        // screenManager.removeAndDisposeCurrentScreen();
+       // screenManager.setScreen(new MainMenuScreen(spriteBatch));
     }
 
     @Override
@@ -142,7 +141,6 @@ public class DifficultyScreen extends ScreenAdapter {
     @Override
     public void dispose() {
         stage.dispose();
-
         Gdx.app.log("Disposed", this.getClass().getName());
     }
 
