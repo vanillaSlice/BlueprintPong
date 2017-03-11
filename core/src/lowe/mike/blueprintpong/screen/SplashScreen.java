@@ -33,8 +33,9 @@ public final class SplashScreen extends BaseScreen {
     }
 
     private void switchToMainMenuScreen() {
-        // dispose this screen because we won't be returning to it
-        screenManager.removeAndDisposeCurrentScreen();
+        // dispose this screen because we won't be able to return to it
+        // from the next screen
+        screenManager.disposeAndClearAllScreens();
         screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 

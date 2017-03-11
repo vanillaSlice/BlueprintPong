@@ -59,16 +59,11 @@ final class DifficultyScreen extends BaseScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
-                    switchToMainMenuScreen();
+                    screenManager.switchToPreviousScreen();
                 }
             }
 
         });
-    }
-
-    private void switchToMainMenuScreen() {
-        screenManager.removeAndDisposeCurrentScreen();
-        screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
     private TextButton initialisePlayButton() {
@@ -91,7 +86,9 @@ final class DifficultyScreen extends BaseScreen {
     }
 
     private void switchToGameScreen() {
-        screenManager.removeAndDisposeCurrentScreen();
+        // dispose this screen because we won't be able to return to it
+        // from the next screen
+        screenManager.disposeAndClearAllScreens();
         screenManager.setScreen(new GameScreen(assets, spriteBatch, screenManager));
     }
 

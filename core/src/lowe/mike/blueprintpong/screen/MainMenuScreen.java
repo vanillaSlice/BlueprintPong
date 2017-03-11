@@ -61,9 +61,8 @@ final class MainMenuScreen extends BaseScreen {
     }
 
     private void switchToDifficultyScreen() {
-        // dispose this screen because it is unlikely we will be returning to it
-        // after pressing the play button
-        screenManager.removeAndDisposeCurrentScreen();
+        // don't dispose this screen because we want to be able to return to it
+        // from the next screen
         screenManager.setScreen(new DifficultyScreen(assets, spriteBatch, screenManager));
     }
 
@@ -87,8 +86,8 @@ final class MainMenuScreen extends BaseScreen {
     }
 
     private void switchToSettingsScreen() {
-        // don't dispose this screen here because it is likely we will be returning to
-        // it after pressing the settings button
+        // don't dispose this screen because we want to be able to return to it
+        // from the next screen
         screenManager.setScreen(new SettingsScreen(assets, spriteBatch, screenManager));
     }
 

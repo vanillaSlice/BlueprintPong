@@ -40,30 +40,33 @@ public final class ScreenManager implements Disposable {
     }
 
     /**
-     * Removes and disposes the current {@link Screen}, if one exists.
-     */
-    public void removeAndDisposeCurrentScreen() {
-        if (!screens.isEmpty()) {
-            screens.pop().dispose();
-        }
-    }
-
-    /**
      * Switches to the previous {@link Screen}, if one exists. Note that
      * this removes and disposes the current {@link Screen}, if one exists.
      */
     public void switchToPreviousScreen() {
-        removeAndDisposeCurrentScreen();
+        // remove and dispose current screen
+        if (!screens.isEmpty()) {
+            screens.pop().dispose();
+        }
+        // switch to previous screen
         if (!screens.isEmpty()) {
             game.setScreen(screens.peek());
         }
     }
 
-    @Override
-    public void dispose() {
+    /**
+     * Disposes and clears all {@link Screen}s.
+     */
+    public void disposeAndClearAllScreens() {
         for (Screen screen : screens) {
             screen.dispose();
         }
+        screens.clear();
+    }
+
+    @Override
+    public void dispose() {
+        disposeAndClearAllScreens();
     }
 
 }
