@@ -1,33 +1,16 @@
 package lowe.mike.blueprintpong.screen;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import lowe.mike.blueprintpong.Assets;
-import lowe.mike.blueprintpong.BlueprintPongGame;
 
 /**
  * Splash screen to show while assets are being loaded.
  *
  * @author Mike Lowe
  */
-public final class SplashScreen extends ScreenAdapter {
-
-    private final Assets assets;
-    private final SpriteBatch spriteBatch;
-    private final ScreenManager screenManager;
-    private final OrthographicCamera camera = new OrthographicCamera();
-    private final Viewport viewport;
-    private final Stage stage;
-    private final Image background;
+public final class SplashScreen extends BaseScreen {
 
     /**
      * Creates a new {@code SplashScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -38,46 +21,27 @@ public final class SplashScreen extends ScreenAdapter {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      */
     public SplashScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
-        this.assets = assets;
-        this.spriteBatch = spriteBatch;
-        this.screenManager = screenManager;
-        this.camera.setToOrtho(false);
-        this.viewport = new FitViewport(
-                BlueprintPongGame.VIRTUAL_WIDTH,
-                BlueprintPongGame.VIRTUAL_HEIGHT,
-                this.camera);
-        this.stage = new Stage(this.viewport, this.spriteBatch);
-        this.background = new Image(this.assets.getSplashBackgroundTexture());
-        this.stage.addActor(this.background);
+        // use splash background texture instead of default
+        super(assets, spriteBatch, screenManager, assets.getSplashBackgroundTexture());
     }
 
     @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-        background.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
-    }
-
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Gdx.gl.glClearColor(0, 0, 0, 0);
-        spriteBatch.setProjectionMatrix(camera.combined);
-        stage.act(delta);
-        stage.draw();
+    void update(float delta) {
         if (assets.isFinishedLoading()) {
             switchToMainMenuScreen();
         }
     }
 
     private void switchToMainMenuScreen() {
+        // dispose this screen because we won't be returning to it
         screenManager.removeAndDisposeCurrentScreen();
         screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
     @Override
-    public void dispose() {
+    public void onDispose() {
+        // dispose this because it won't be used again
         assets.disposeSplashBackgroundTexture();
-        stage.dispose();
     }
 
 }

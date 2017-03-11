@@ -1,121 +1,68 @@
 package lowe.mike.blueprintpong.screen;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lowe.mike.blueprintpong.Assets;
-import lowe.mike.blueprintpong.BlueprintPongGame;
 
 /**
- * Created by mikelowe on 02/03/2017.
+ * Difficulty screen to show just before the player enters
+ * the game.
+ *
+ * @author Mike Lowe
  */
+final class DifficultyScreen extends BaseScreen {
 
-final class DifficultyScreen extends ScreenAdapter {
+    private static final String DIFFICULTY_LABEL_TEXT = "Select Difficulty";
+    private static final String BACK_BUTTON_TEXT = "Back";
+    private static final String PLAY_BUTTON_TEXT = "Play";
 
-    //Difficulty buttons
-    //Back
-    // Play
-
-    private final SpriteBatch spriteBatch;
-    private final ScreenManager screenManager;
-
-    private final OrthographicCamera camera = new OrthographicCamera();
-    private final Viewport viewport;
-
-    private final Assets assets;
-    private final Stage stage;
-    private final Image background;
     private final Label difficultyLabel;
-    private final Button easyButton;
-    private final Button mediumButton;
-    private final Button hardButton;
+    private final ButtonGroup<TextButton> difficultyButtonGroup;
     private final Button backButton;
-    private final Button playButton;
+    private final TextButton playButton;
 
-    public DifficultyScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
-        this.assets = assets;
-        this.spriteBatch = spriteBatch;
-        this.screenManager = screenManager;
+    /**
+     * Creates a new {@code DifficultyScreen} given {@link Assets}, a {@link SpriteBatch}
+     * and a {@link ScreenManager}.
+     *
+     * @param assets        {@link Assets} containing assets used in the {@link Screen}
+     * @param spriteBatch   {@link SpriteBatch} to add sprites to
+     * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
+     */
+    DifficultyScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
+        super(assets, spriteBatch, screenManager);
+        this.difficultyLabel = createLabel(assets.getLargeFont(), DIFFICULTY_LABEL_TEXT);
+        this.difficultyButtonGroup = ScreenUtils.initialiseDifficultyButtonGroup(this);
+        this.backButton = initialiseBackButton();
+        this.playButton = initialisePlayButton();
+        this.stage.addActor(getMenuTable());
+    }
 
-        // don't need to use ppm as we aren't interacting with box2d here`
-        this.viewport = new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH, BlueprintPongGame.VIRTUAL_HEIGHT, this.camera);
-        this.stage = new Stage(this.viewport, spriteBatch);
-        this.background = new Image(assets.getBackgroundTexture());
+    private TextButton initialiseBackButton() {
+        TextButton button = createTextButton(BACK_BUTTON_TEXT);
+        addBackButtonListener(button);
+        return button;
+    }
 
-        Label.LabelStyle lstyle = new Label.LabelStyle();
-        lstyle.font = assets.generateFont((int) (viewport.getScreenWidth() / 6));
-        lstyle.font.getData().setScale(viewport.getWorldWidth() / viewport.getScreenWidth(), viewport.getWorldHeight() / viewport.getScreenHeight());
-        this.difficultyLabel = new Label("Difficulty", lstyle);
-
-        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-        style.font = assets.generateFont(viewport.getScreenWidth() / 10);
-        style.font.getData().setScale(viewport.getWorldWidth() / viewport.getScreenWidth(), viewport.getWorldHeight() / viewport.getScreenHeight());
-        style.fontColor = Color.WHITE;
-        style.overFontColor = Color.BLACK;
-        style.downFontColor = Color.BLACK;
-        style.up = new TextureRegionDrawable(new TextureRegion(assets.getButtonUpTexture()));
-        style.over = new TextureRegionDrawable(new TextureRegion(assets.getButtonDownTexture()));
-        style.down = style.over;
-
-        this.easyButton = new TextButton("Easy", style);
-        easyButton.pad(0, 10f, 0, 10f);
-        this.mediumButton = new TextButton("Medium", style);
-        mediumButton.pad(0, 10f, 0, 10f);
-        this.hardButton = new TextButton("Hard", style);
-        hardButton.pad(0, 10f, 0, 10f);
-        this.backButton = new TextButton("Back", style);
-        backButton.pad(0, 10f, 0, 10f);
-        this.playButton = new TextButton("Play", style);
-        playButton.pad(0, 10f, 0, 10f);
-
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.row();
-        table.add(difficultyLabel).expandX().colspan(3);
-        table.row();
-        table.add(easyButton).expandX();
-        table.add(mediumButton).expandX();
-        table.add(hardButton).expandX();
-        table.row().padTop(10f);
-        table.add(backButton).expandX();
-        table.add();
-        table.add(playButton).expandX();
-
-        this.stage.addActor(this.background);
-        this.stage.addActor(table);
-
-        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
-
-        Gdx.input.setInputProcessor(this.stage);
-
-        this.backButton.addListener(new InputListener() {
+    private void addBackButtonListener(final TextButton button) {
+        button.addListener(new ChangeListener() {
 
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
+            public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    switchToMainMenuScreen();
+                }
             }
 
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                switchToMainMenuScreen();
-            }
         });
     }
 
@@ -124,25 +71,58 @@ final class DifficultyScreen extends ScreenAdapter {
         screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-        background.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
+    private TextButton initialisePlayButton() {
+        TextButton button = createTextButton(PLAY_BUTTON_TEXT);
+        addPlayButtonListener(button);
+        return button;
     }
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        spriteBatch.setProjectionMatrix(camera.combined);
-        stage.act();
-        stage.draw();
+    private void addPlayButtonListener(final TextButton button) {
+        button.addListener(new ChangeListener() {
+
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    switchToGameScreen();
+                }
+            }
+
+        });
     }
 
-    @Override
-    public void dispose() {
-        stage.dispose();
-        Gdx.app.log("Disposed", this.getClass().getName());
+    private void switchToGameScreen() {
+        screenManager.removeAndDisposeCurrentScreen();
+        screenManager.setScreen(new GameScreen(assets, spriteBatch, screenManager));
+    }
+
+    private Table getMenuTable() {
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+        table.row();
+        table.add(difficultyLabel).expandX();
+        table.row().padBottom(getComponentSpacing());
+        addDifficultyButtonGroup(table);
+        table.row().padTop(getComponentSpacing());
+        addBackAndPlayButtons(table);
+        return table;
+    }
+
+    private void addDifficultyButtonGroup(Table table) {
+        HorizontalGroup group = new HorizontalGroup();
+        group.space(getComponentSpacing());
+        for (TextButton button : difficultyButtonGroup.getButtons()) {
+            group.addActor(button);
+        }
+        table.add(group).expandX();
+    }
+
+    private void addBackAndPlayButtons(Table table) {
+        HorizontalGroup group = new HorizontalGroup();
+        group.space(getComponentSpacing());
+        group.addActor(backButton);
+        group.addActor(playButton);
+        table.add(group).expandX();
     }
 
 }

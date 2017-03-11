@@ -2,12 +2,11 @@ package lowe.mike.blueprintpong.screen;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.BlueprintPongGame;
@@ -17,18 +16,14 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
  *
  * @author Mike Lowe
  */
-
 final class MainMenuScreen extends BaseScreen {
 
-    private static final int TITLE_LABEL_FONT_DIVISOR = 6;
-    private static final int BUTTON_FONT_DIVISOR = 10;
     private static final String PLAY_BUTTON_TEXT = "Play";
     private static final String SETTINGS_BUTTON_TEXT = "Settings";
-    private static final float SETTINGS_BUTTON_TOP_PADDING = 10f;
 
     private final Label titleLabel;
-    private final Button playButton;
-    private final Button settingsButton;
+    private final TextButton playButton;
+    private final TextButton settingsButton;
 
     /**
      * Creates a new {@code MainMenuScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -40,82 +35,81 @@ final class MainMenuScreen extends BaseScreen {
      */
     MainMenuScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.titleLabel = createLabel(
-                viewport.getScreenWidth() / TITLE_LABEL_FONT_DIVISOR,
-                BlueprintPongGame.TITLE);
+        this.titleLabel = createLabel(assets.getExtraLargeFont(), BlueprintPongGame.TITLE);
         this.playButton = initialisePlayButton();
         this.settingsButton = initialiseSettingsButton();
         this.stage.addActor(getMenuTable());
     }
 
     private TextButton initialisePlayButton() {
-        TextButton button = createTextButton(
-                viewport.getScreenWidth() / BUTTON_FONT_DIVISOR,
-                PLAY_BUTTON_TEXT);
+        TextButton button = createTextButton(PLAY_BUTTON_TEXT);
         addPlayButtonListener(button);
         return button;
     }
 
-    private void addPlayButtonListener(TextButton button) {
-        button.addListener(new InputListener() {
+    private void addPlayButtonListener(final TextButton button) {
+        button.addListener(new ChangeListener() {
 
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                switchToDifficultyScreen();
+            public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    switchToDifficultyScreen();
+                }
             }
 
         });
     }
 
     private void switchToDifficultyScreen() {
+        // dispose this screen because it is unlikely we will be returning to it
+        // after pressing the play button
         screenManager.removeAndDisposeCurrentScreen();
         screenManager.setScreen(new DifficultyScreen(assets, spriteBatch, screenManager));
     }
 
     private TextButton initialiseSettingsButton() {
-        TextButton button = createTextButton(
-                viewport.getScreenWidth() / BUTTON_FONT_DIVISOR,
-                SETTINGS_BUTTON_TEXT);
+        TextButton button = createTextButton(SETTINGS_BUTTON_TEXT);
         addSettingsButtonListener(button);
         return button;
     }
 
-    private void addSettingsButtonListener(TextButton button) {
-        button.addListener(new InputListener() {
+    private void addSettingsButtonListener(final TextButton button) {
+        button.addListener(new ChangeListener() {
 
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                switchToSettingsScreen();
+            public void changed(ChangeEvent event, Actor actor) {
+                if (button.isChecked()) {
+                    switchToSettingsScreen();
+                }
             }
 
         });
     }
 
     private void switchToSettingsScreen() {
+        // don't dispose this screen here because it is likely we will be returning to
+        // it after pressing the settings button
         screenManager.setScreen(new SettingsScreen(assets, spriteBatch, screenManager));
     }
 
     private Table getMenuTable() {
         Table table = new Table();
         table.setFillParent(true);
-        table.top();
+        table.center();
         table.row();
         table.add(titleLabel).expandX();
         table.row();
         table.add(playButton).expandX();
-        table.row();
-        table.add(settingsButton).expandX().padTop(SETTINGS_BUTTON_TOP_PADDING);
+        table.row().padTop(getComponentSpacing());
+        table.add(settingsButton).expandX();
         return table;
+    }
+
+    @Override
+    void onShow() {
+        // ensure all buttons are unchecked when the screen is shown
+        playButton.setChecked(false);
+        settingsButton.setChecked(false);
     }
 
 }

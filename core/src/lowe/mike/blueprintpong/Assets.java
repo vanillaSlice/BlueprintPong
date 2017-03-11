@@ -1,5 +1,6 @@
 package lowe.mike.blueprintpong;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
@@ -10,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.ObjectMap;
 
 /**
  * {@code Assets} provides access to assets, such as {@link Texture}s,
@@ -20,6 +20,9 @@ import com.badlogic.gdx.utils.ObjectMap;
  */
 public final class Assets implements Disposable {
 
+    /*
+     * Describe the assets to load in.
+     */
     private static final AssetDescriptor<FreeTypeFontGenerator> FONT_GENERATOR_ASSET_DESCRIPTOR
             = new AssetDescriptor<FreeTypeFontGenerator>("BluprintDEMO.otf", FreeTypeFontGenerator.class);
     private static final AssetDescriptor<Texture> SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR
@@ -43,21 +46,24 @@ public final class Assets implements Disposable {
     private static final AssetDescriptor<Sound> POINT_SCORED_SOUND_ASSET_DESCRIPTOR
             = new AssetDescriptor<Sound>("point-scored.ogg", Sound.class);
 
-    private static final FreeTypeFontGenerator.FreeTypeFontParameter FONT_PARAMETER
-            = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    private static final Color FONT_COLOUR = Color.WHITE;
 
-    static {
-        FONT_PARAMETER.color = Color.WHITE;
-        // for smoothing fonts
-        FONT_PARAMETER.minFilter = Texture.TextureFilter.Linear;
-        FONT_PARAMETER.magFilter = Texture.TextureFilter.Linear;
-    }
+    /*
+     * These are used to determine the portion of the screen that a font
+     * should take up.
+     */
+    private static final int EXTRA_LARGE_FONT_DIVISOR = 6;
+    private static final int LARGE_FONT_DIVISOR = 8;
+    private static final int MEDIUM_FONT_DIVISOR = 13;
 
     private final AssetManager assetManager = new AssetManager();
-    private final FreeTypeFontGeneratorLoader fontGeneratorLoader
-            = new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver());
-    private final ObjectMap<Integer, BitmapFont> fonts = new ObjectMap<Integer, BitmapFont>();
-    private FreeTypeFontGenerator fontGenerator;
+
+    /*
+     * References to assets.
+     */
+    private BitmapFont extraLargeFont;
+    private BitmapFont largeFont;
+    private BitmapFont mediumFont;
     private Texture splashBackgroundTexture;
     private Texture backgroundTexture;
     private Texture buttonUpTexture;
@@ -72,31 +78,53 @@ public final class Assets implements Disposable {
     /**
      * Creates a new {@code Assets} instance.
      */
-    public Assets() {
-        this.assetManager.setLoader(FreeTypeFontGenerator.class, this.fontGeneratorLoader);
-        // load splash background to display while other assets are loading
+    Assets() {
         loadSplashBackgroundTexture();
         loadMainAssets();
     }
 
+    /*
+     * Wait until splash background texture is loaded before continuing.
+     * This is so we cn display the splash screen while the main assets
+     * are still being loaded.
+     */
     private void loadSplashBackgroundTexture() {
-        assetManager.load(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        loadAsset(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
         assetManager.finishLoading();
         splashBackgroundTexture = assetManager.get(SPLASH_BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        splashBackgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        addSmoothingFilter(splashBackgroundTexture);
+    }
+
+    private void loadAsset(AssetDescriptor... assetDescriptors) {
+        for (AssetDescriptor assetDescriptor : assetDescriptors) {
+            assetManager.load(assetDescriptor);
+        }
+    }
+
+    private static void addSmoothingFilter(Texture... textures) {
+        for (Texture texture : textures) {
+            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        }
     }
 
     private void loadMainAssets() {
-        assetManager.load(FONT_GENERATOR_ASSET_DESCRIPTOR);
-        assetManager.load(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(LINE_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(BALL_TEXTURE_ASSET_DESCRIPTOR);
-        assetManager.load(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
-        assetManager.load(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
-        assetManager.load(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
+        // need this so we can load in fonts
+        assetManager.setLoader(
+                FreeTypeFontGenerator.class,
+                new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver())
+        );
+        loadAsset(
+                FONT_GENERATOR_ASSET_DESCRIPTOR,
+                BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
+                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
+                BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
+                LINE_TEXTURE_ASSET_DESCRIPTOR,
+                PADDLE_TEXTURE_ASSET_DESCRIPTOR,
+                BALL_TEXTURE_ASSET_DESCRIPTOR,
+                PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
+                WALL_HIT_SOUND_ASSET_DESCRIPTOR,
+                POINT_SCORED_SOUND_ASSET_DESCRIPTOR
+        );
     }
 
     /**
@@ -104,42 +132,82 @@ public final class Assets implements Disposable {
      */
     public boolean isFinishedLoading() {
         if (assetManager.update()) {
-            fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
-            backgroundTexture = assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
-            buttonUpTexture = assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
-            buttonDownTexture = assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
-            lineTexture = assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
-            paddleTexture = assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
-            ballTexture = assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
-            paddleHitSound = assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
-            wallHitSound = assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
-            pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
-            backgroundTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            lineTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            paddleTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            ballTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            loadFonts();
+            assignLoadedAssetsToFields();
+            addSmoothingFilterToAssets();
             return true;
         } else {
             return false;
         }
     }
 
+    private void loadFonts() {
+        FreeTypeFontGenerator fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter
+                = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.color = FONT_COLOUR;
+        // apply smoothing filters
+        parameter.minFilter = Texture.TextureFilter.Linear;
+        parameter.magFilter = Texture.TextureFilter.Linear;
+
+        extraLargeFont = loadFont(fontGenerator, parameter, EXTRA_LARGE_FONT_DIVISOR);
+        largeFont = loadFont(fontGenerator, parameter, LARGE_FONT_DIVISOR);
+        mediumFont = loadFont(fontGenerator, parameter, MEDIUM_FONT_DIVISOR);
+
+        // finished with font generator so dispose it
+        assetManager.unload(FONT_GENERATOR_ASSET_DESCRIPTOR.fileName);
+    }
+
+    private BitmapFont loadFont(FreeTypeFontGenerator fontGenerator,
+                                FreeTypeFontGenerator.FreeTypeFontParameter parameter,
+                                int divisor) {
+        parameter.size = Gdx.graphics.getWidth() / divisor;
+        BitmapFont font = fontGenerator.generateFont(parameter);
+        font.getData().setScale(Scaling.getX(), Scaling.getY());
+        return font;
+    }
+
+    private void assignLoadedAssetsToFields() {
+        backgroundTexture = assetManager.get(BACKGROUND_TEXTURE_ASSET_DESCRIPTOR);
+        buttonUpTexture = assetManager.get(BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR);
+        buttonDownTexture = assetManager.get(BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR);
+        lineTexture = assetManager.get(LINE_TEXTURE_ASSET_DESCRIPTOR);
+        paddleTexture = assetManager.get(PADDLE_TEXTURE_ASSET_DESCRIPTOR);
+        ballTexture = assetManager.get(BALL_TEXTURE_ASSET_DESCRIPTOR);
+        paddleHitSound = assetManager.get(PADDLE_HIT_SOUND_ASSET_DESCRIPTOR);
+        wallHitSound = assetManager.get(WALL_HIT_SOUND_ASSET_DESCRIPTOR);
+        pointScoredSound = assetManager.get(POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
+    }
+
+    private void addSmoothingFilterToAssets() {
+        addSmoothingFilter(
+                backgroundTexture,
+                lineTexture,
+                paddleTexture,
+                ballTexture
+        );
+    }
+
     /**
-     * @param size size of the font to generate
-     * @return a {@link BitmapFont}
+     * @return the extra large {@link BitmapFont}
      */
-    public BitmapFont generateFont(int size) {
-        // use cached version if it exists
-        if (fonts.containsKey(size)) {
-            return fonts.get(size);
-        }
-        // otherwise generate a new font and cache it
-        else {
-            FONT_PARAMETER.size = size;
-            BitmapFont font = fontGenerator.generateFont(FONT_PARAMETER);
-            fonts.put(size, font);
-            return font;
-        }
+    public BitmapFont getExtraLargeFont() {
+        return extraLargeFont;
+    }
+
+    /**
+     * @return the large {@link BitmapFont}
+     */
+    public BitmapFont getLargeFont() {
+        return largeFont;
+    }
+
+    /**
+     * @return the medium {@link BitmapFont}
+     */
+    public BitmapFont getMediumFont() {
+        return mediumFont;
     }
 
     /**
@@ -224,11 +292,9 @@ public final class Assets implements Disposable {
     @Override
     public void dispose() {
         assetManager.dispose();
-
-        // need to do this as the asset manager doesn't handle font disposal
-        for (BitmapFont font : fonts.values()) {
-            font.dispose();
-        }
+        extraLargeFont.dispose();
+        largeFont.dispose();
+        mediumFont.dispose();
     }
 
 }

@@ -1,14 +1,23 @@
 package lowe.mike.blueprintpong.screen;
 
-/**
- * Created by mikelowe on 02/03/2017.
- */
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-final class PauseScreen {
+import lowe.mike.blueprintpong.Assets;
+
+/**
+ * Screen to show when the game is paused.
+ *
+ * @author Mike Lowe
+ */
+final class PauseScreen extends BaseScreen {
 
    // Resume
    // Restart
    // Settings
    // Exit
+
+    PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
+        super(assets, spriteBatch, screenManager);
+    }
 
 }
