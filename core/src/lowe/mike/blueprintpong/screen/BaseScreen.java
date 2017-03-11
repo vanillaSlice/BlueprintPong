@@ -3,25 +3,17 @@ package lowe.mike.blueprintpong.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.BlueprintPongGame;
-import lowe.mike.blueprintpong.Scaling;
 
 /**
  * Provides a base class for the {@link Screen}s in the game.
@@ -30,10 +22,7 @@ import lowe.mike.blueprintpong.Scaling;
  */
 class BaseScreen extends ScreenAdapter {
 
-    private static final float COMPONENT_SPACING = 25f;
-
-    private static final Color PRIMARY_TEXT_BUTTON_FONT_COLOUR = Color.WHITE;
-    private static final Color SECONDARY_TEXT_BUTTON_FONT_COLOUR = Color.BLACK;
+    static final float COMPONENT_SPACING = BlueprintPongGame.VIRTUAL_HEIGHT / 30;
 
     final Assets assets;
     final SpriteBatch spriteBatch;
@@ -44,12 +33,6 @@ class BaseScreen extends ScreenAdapter {
 
     private final Image background;
     private boolean isPaused;
-
-    /*
-     * Initialise these as and when required.
-     */
-    private Label.LabelStyle labelStyle;
-    private TextButton.TextButtonStyle textButtonStyle;
 
     /**
      * Creates a new {@code BaseScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -99,68 +82,6 @@ class BaseScreen extends ScreenAdapter {
      * happens when this becomes the current {@link Screen}.
      */
     void onShow() {
-    }
-
-    /**
-     * Creates a {@link Label} with the given {@link BitmapFont} and text.
-     *
-     * @param font the {@link BitmapFont}
-     * @param text text to initialise the {@link Label} with
-     * @return the {@link Label}
-     */
-    final Label createLabel(BitmapFont font, String text) {
-        if (labelStyle == null) {
-            initialiseLabelStyle();
-        }
-        labelStyle.font = font;
-        Label label = new Label(text, labelStyle);
-        label.setAlignment(Align.center);
-        return label;
-    }
-
-    private void initialiseLabelStyle() {
-        labelStyle = new Label.LabelStyle();
-    }
-
-    /**
-     * Creates a {@link TextButton} with the given text.
-     *
-     * @param text text to initialise the {@link TextButton} with
-     * @return the {@link TextButton}
-     */
-    final TextButton createTextButton(String text) {
-        if (textButtonStyle == null) {
-            initialiseTextButtonStyle();
-        }
-        TextButton textButton = new TextButton(text, textButtonStyle);
-        // size of font determines how much padding to apply
-        float padding = (textButton.getHeight() - textButtonStyle.font.getCapHeight()) / 2;
-        textButton.padLeft(padding).padRight(padding).align(Align.center);
-        return textButton;
-    }
-
-    private void initialiseTextButtonStyle() {
-        textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.fontColor = PRIMARY_TEXT_BUTTON_FONT_COLOUR;
-        textButtonStyle.downFontColor = SECONDARY_TEXT_BUTTON_FONT_COLOUR;
-        textButtonStyle.overFontColor = textButtonStyle.downFontColor;
-        textButtonStyle.checkedFontColor = textButtonStyle.downFontColor;
-        textButtonStyle.up = getTextureRegionDrawable(assets.getButtonUpTexture());
-        textButtonStyle.down = getTextureRegionDrawable(assets.getButtonDownTexture());
-        textButtonStyle.over = textButtonStyle.down;
-        textButtonStyle.checked = textButtonStyle.down;
-        textButtonStyle.font = assets.getMediumFont();
-    }
-
-    private static TextureRegionDrawable getTextureRegionDrawable(Texture texture) {
-        return new TextureRegionDrawable(new TextureRegion(texture));
-    }
-
-    /**
-     * @return component spacing value
-     */
-    final float getComponentSpacing() {
-        return COMPONENT_SPACING * Scaling.getY();
     }
 
     @Override

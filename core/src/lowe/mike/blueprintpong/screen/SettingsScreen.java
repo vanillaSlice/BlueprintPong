@@ -45,10 +45,10 @@ final class SettingsScreen extends BaseScreen {
      */
     SettingsScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.settingsLabel = createLabel(assets.getLargeFont(), SETTINGS_LABEL_TEXT);
-        this.difficultyLabel = createLabel(assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
-        this.difficultyButtonGroup = ScreenUtils.initialiseDifficultyButtonGroup(this);
-        this.soundsLabel = createLabel(assets.getMediumFont(), SOUNDS_LABEL_TEXT);
+        this.settingsLabel = ScreenUtils.createLabel(this.assets.getLargeFont(), SETTINGS_LABEL_TEXT);
+        this.difficultyLabel = ScreenUtils.createLabel(this.assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
+        this.difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(this.assets);
+        this.soundsLabel = ScreenUtils.createLabel(this.assets.getMediumFont(), SOUNDS_LABEL_TEXT);
         this.soundsButtonGroup = initialiseSoundsButtonGroup();
         this.backButton = initialiseBackButton();
         this.stage.addActor(getMenuTable());
@@ -56,8 +56,8 @@ final class SettingsScreen extends BaseScreen {
 
     private ButtonGroup<TextButton> initialiseSoundsButtonGroup() {
         boolean playSounds = GamePreferences.shouldPlaySounds();
-        TextButton onButton = createTextButton(ON_BUTTON_TEXT);
-        TextButton offButton = createTextButton(OFF_BUTTON_TEXT);
+        TextButton onButton = ScreenUtils.createTextButton(assets, ON_BUTTON_TEXT);
+        TextButton offButton = ScreenUtils.createTextButton(assets, OFF_BUTTON_TEXT);
         if (playSounds) {
             onButton.setChecked(true);
         } else {
@@ -86,7 +86,7 @@ final class SettingsScreen extends BaseScreen {
     }
 
     private TextButton initialiseBackButton() {
-        TextButton button = createTextButton(BACK_BUTTON_TEXT);
+        TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
         addBackButtonListener(button);
         return button;
     }
@@ -108,14 +108,14 @@ final class SettingsScreen extends BaseScreen {
         Table table = new Table();
         table.setFillParent(true);
         table.center();
-        table.row().padBottom(getComponentSpacing());
+        table.row();
         int colspan = difficultyButtonGroup.getButtons().size + 1;
         table.add(settingsLabel).expandX().colspan(colspan);
         table.row();
         addButtonGroup(table, difficultyLabel, difficultyButtonGroup);
-        table.row().padTop(getComponentSpacing());
+        table.row().padTop(COMPONENT_SPACING);
         addButtonGroup(table, soundsLabel, soundsButtonGroup);
-        table.row().padTop(getComponentSpacing());
+        table.row().padTop(COMPONENT_SPACING);
         table.add(backButton).expandX().colspan(colspan);
         return table;
     }

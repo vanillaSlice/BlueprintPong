@@ -35,14 +35,14 @@ final class MainMenuScreen extends BaseScreen {
      */
     MainMenuScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.titleLabel = createLabel(assets.getExtraLargeFont(), BlueprintPongGame.TITLE);
+        this.titleLabel = ScreenUtils.createLabel(this.assets.getExtraLargeFont(), BlueprintPongGame.TITLE);
         this.playButton = initialisePlayButton();
         this.settingsButton = initialiseSettingsButton();
         this.stage.addActor(getMenuTable());
     }
 
     private TextButton initialisePlayButton() {
-        TextButton button = createTextButton(PLAY_BUTTON_TEXT);
+        TextButton button = ScreenUtils.createTextButton(assets, PLAY_BUTTON_TEXT);
         addPlayButtonListener(button);
         return button;
     }
@@ -67,7 +67,7 @@ final class MainMenuScreen extends BaseScreen {
     }
 
     private TextButton initialiseSettingsButton() {
-        TextButton button = createTextButton(SETTINGS_BUTTON_TEXT);
+        TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
         addSettingsButtonListener(button);
         return button;
     }
@@ -99,7 +99,7 @@ final class MainMenuScreen extends BaseScreen {
         table.add(titleLabel).expandX();
         table.row();
         table.add(playButton).expandX();
-        table.row().padTop(getComponentSpacing());
+        table.row().padTop(COMPONENT_SPACING);
         table.add(settingsButton).expandX();
         return table;
     }

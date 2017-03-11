@@ -40,15 +40,15 @@ final class DifficultyScreen extends BaseScreen {
      */
     DifficultyScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.difficultyLabel = createLabel(assets.getLargeFont(), DIFFICULTY_LABEL_TEXT);
-        this.difficultyButtonGroup = ScreenUtils.initialiseDifficultyButtonGroup(this);
+        this.difficultyLabel = ScreenUtils.createLabel(this.assets.getLargeFont(), DIFFICULTY_LABEL_TEXT);
+        this.difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(this.assets);
         this.backButton = initialiseBackButton();
         this.playButton = initialisePlayButton();
         this.stage.addActor(getMenuTable());
     }
 
     private TextButton initialiseBackButton() {
-        TextButton button = createTextButton(BACK_BUTTON_TEXT);
+        TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
         addBackButtonListener(button);
         return button;
     }
@@ -67,7 +67,7 @@ final class DifficultyScreen extends BaseScreen {
     }
 
     private TextButton initialisePlayButton() {
-        TextButton button = createTextButton(PLAY_BUTTON_TEXT);
+        TextButton button = ScreenUtils.createTextButton(assets, PLAY_BUTTON_TEXT);
         addPlayButtonListener(button);
         return button;
     }
@@ -98,16 +98,16 @@ final class DifficultyScreen extends BaseScreen {
         table.center();
         table.row();
         table.add(difficultyLabel).expandX();
-        table.row().padBottom(getComponentSpacing());
+        table.row().padBottom(COMPONENT_SPACING);
         addDifficultyButtonGroup(table);
-        table.row().padTop(getComponentSpacing());
+        table.row().padTop(COMPONENT_SPACING);
         addBackAndPlayButtons(table);
         return table;
     }
 
     private void addDifficultyButtonGroup(Table table) {
         HorizontalGroup group = new HorizontalGroup();
-        group.space(getComponentSpacing());
+        group.space(COMPONENT_SPACING);
         for (TextButton button : difficultyButtonGroup.getButtons()) {
             group.addActor(button);
         }
@@ -116,7 +116,7 @@ final class DifficultyScreen extends BaseScreen {
 
     private void addBackAndPlayButtons(Table table) {
         HorizontalGroup group = new HorizontalGroup();
-        group.space(getComponentSpacing());
+        group.space(COMPONENT_SPACING);
         group.addActor(backButton);
         group.addActor(playButton);
         table.add(group).expandX();

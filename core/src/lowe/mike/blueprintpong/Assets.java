@@ -164,7 +164,10 @@ public final class Assets implements Disposable {
                                 int divisor) {
         parameter.size = Gdx.graphics.getWidth() / divisor;
         BitmapFont font = fontGenerator.generateFont(parameter);
-        font.getData().setScale(Scaling.getX(), Scaling.getY());
+        font.getData().setScale(
+                BlueprintPongGame.VIRTUAL_WIDTH / Gdx.graphics.getWidth(),
+                BlueprintPongGame.VIRTUAL_HEIGHT / Gdx.graphics.getHeight()
+        );
         return font;
     }
 
