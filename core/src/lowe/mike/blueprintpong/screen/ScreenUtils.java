@@ -53,8 +53,8 @@ final class ScreenUtils {
     /**
      * Creates a {@link TextButton} with the given text.
      *
-     * @param text   text to initialise the {@link TextButton} with
      * @param assets {@link Assets} needed to create {@link TextButton}
+     * @param text   text to initialise the {@link TextButton} with
      * @return the {@link TextButton}
      */
     static TextButton createTextButton(Assets assets, String text) {

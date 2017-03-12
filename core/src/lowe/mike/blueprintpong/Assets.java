@@ -85,7 +85,7 @@ public final class Assets implements Disposable {
 
     /*
      * Wait until splash background texture is loaded before continuing.
-     * This is so we cn display the splash screen while the main assets
+     * This is so we can display the splash screen while the main assets
      * are still being loaded.
      */
     private void loadSplashBackgroundTexture() {
