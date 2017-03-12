@@ -8,10 +8,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lowe.mike.blueprintpong.Assets;
 
-/**
- * Created by mikelowe on 02/03/2017.
- */
 
+/**
+ * Screen to show when the game is being played.
+ *
+ * @author Mike Lowe
+ */
 final class GameScreen extends BaseScreen {
 
     //    Paddles
@@ -21,6 +23,11 @@ final class GameScreen extends BaseScreen {
 //    Win messages
 //    Pause button
     private static final String PAUSE_BUTTON_TEXT = "Pause";
+
+    int computerScore;
+    int playerScore;
+    boolean gameOver;
+    boolean playerWon;
 
     private final TextButton pauseButton;
 
@@ -66,6 +73,12 @@ final class GameScreen extends BaseScreen {
 
     void restartGame() {
         Gdx.app.log("GameScreen", "Restart");
+    }
+
+    private void switchToGameOverScreen() {
+        // don't dispose this screen because we want to be able to return to it
+        // from the next screen
+        screenManager.setScreen(new GameOverScreen(assets, spriteBatch, screenManager, this));
     }
 
 }

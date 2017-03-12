@@ -153,7 +153,7 @@ final class PauseScreen extends BaseScreen {
         table.add(resumeButton);
         table.row().padBottom(COMPONENT_SPACING);
         table.add(restartButton);
-        table.row().pad(COMPONENT_SPACING);
+        table.row().padBottom(COMPONENT_SPACING);
         table.add(settingsButtons);
         table.row();
         table.add(exitButton);
