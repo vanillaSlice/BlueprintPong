@@ -26,7 +26,6 @@ final class SettingsScreen extends BaseScreen {
     private static final String SOUNDS_LABEL_TEXT = "Sounds";
     private static final String ON_BUTTON_TEXT = "On";
     private static final String OFF_BUTTON_TEXT = "Off";
-    private static final String BACK_BUTTON_TEXT = "Back";
 
     private final Label settingsLabel;
     private final Label difficultyLabel;
@@ -50,19 +49,19 @@ final class SettingsScreen extends BaseScreen {
         this.difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(this.assets);
         this.soundsLabel = ScreenUtils.createLabel(this.assets.getMediumFont(), SOUNDS_LABEL_TEXT);
         this.soundsButtonGroup = initialiseSoundsButtonGroup();
-        this.backButton = initialiseBackButton();
+        this.backButton = ScreenUtils.createBackButton(this.assets, this.screenManager);
         this.stage.addActor(getMenuTable());
     }
 
     private ButtonGroup<TextButton> initialiseSoundsButtonGroup() {
         boolean playSounds = GamePreferences.shouldPlaySounds();
+
         TextButton onButton = ScreenUtils.createTextButton(assets, ON_BUTTON_TEXT);
         TextButton offButton = ScreenUtils.createTextButton(assets, OFF_BUTTON_TEXT);
-        if (playSounds) {
-            onButton.setChecked(true);
-        } else {
-            offButton.setChecked(true);
-        }
+
+        onButton.setChecked(playSounds);
+        offButton.setChecked(!playSounds);
+
         addSoundButtonListener(onButton, true);
         addSoundButtonListener(offButton, false);
 
@@ -79,25 +78,6 @@ final class SettingsScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     GamePreferences.setPlaySounds(playSounds);
-                }
-            }
-
-        });
-    }
-
-    private TextButton initialiseBackButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
-        addBackButtonListener(button);
-        return button;
-    }
-
-    private void addBackButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    screenManager.switchToPreviousScreen();
                 }
             }
 

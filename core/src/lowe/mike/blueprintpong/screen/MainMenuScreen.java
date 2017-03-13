@@ -19,7 +19,6 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
 final class MainMenuScreen extends BaseScreen {
 
     private static final String PLAY_BUTTON_TEXT = "Play";
-    private static final String SETTINGS_BUTTON_TEXT = "Settings";
 
     private final Label titleLabel;
     private final TextButton playButton;
@@ -37,7 +36,7 @@ final class MainMenuScreen extends BaseScreen {
         super(assets, spriteBatch, screenManager);
         this.titleLabel = ScreenUtils.createLabel(this.assets.getExtraLargeFont(), BlueprintPongGame.TITLE);
         this.playButton = initialisePlayButton();
-        this.settingsButton = initialiseSettingsButton();
+        this.settingsButton = ScreenUtils.createSettingsButton(this.assets, this.spriteBatch, this.screenManager);
         this.stage.addActor(getMenuTable());
     }
 
@@ -64,31 +63,6 @@ final class MainMenuScreen extends BaseScreen {
         // don't dispose this screen because we want to be able to return to it
         // from the next screen
         screenManager.setScreen(new DifficultyScreen(assets, spriteBatch, screenManager));
-    }
-
-    private TextButton initialiseSettingsButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
-        addSettingsButtonListener(button);
-        return button;
-    }
-
-    private void addSettingsButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToSettingsScreen();
-                }
-            }
-
-        });
-    }
-
-    private void switchToSettingsScreen() {
-        // don't dispose this screen because we want to be able to return to it
-        // from the next screen
-        screenManager.setScreen(new SettingsScreen(assets, spriteBatch, screenManager));
     }
 
     private Table getMenuTable() {

@@ -18,8 +18,6 @@ final class PauseScreen extends BaseScreen {
 
     private static final String RESUME_BUTTON_TEXT = "Resume";
     private static final String RESTART_BUTTON_TEXT = "Restart";
-    private static final String SETTINGS_BUTTON_TEXT = "Settings";
-    private static final String EXIT_BUTTON_TEXT = "Exit";
 
     private final GameScreen gameScreen;
     private final TextButton resumeButton;
@@ -41,8 +39,8 @@ final class PauseScreen extends BaseScreen {
         this.gameScreen = gameScreen;
         this.resumeButton = initialiseResumeButton();
         this.restartButton = initialiseRestartButton();
-        this.settingsButtons = initialiseSettingsButton();
-        this.exitButton = initialiseExitButton();
+        this.settingsButtons = ScreenUtils.createSettingsButton(this.assets, this.spriteBatch, this.screenManager);
+        this.exitButton = ScreenUtils.createExitButton(this.assets, this.spriteBatch, this.screenManager);
         this.stage.addActor(getMenuTable());
     }
 
@@ -92,57 +90,6 @@ final class PauseScreen extends BaseScreen {
     private void switchToGameScreenAndRestart() {
         screenManager.switchToPreviousScreen();
         gameScreen.restartGame();
-    }
-
-    private TextButton initialiseSettingsButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
-        addSettingsButtonListener(button);
-        return button;
-    }
-
-    private void addSettingsButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToSettingsScreen();
-                }
-            }
-
-        });
-    }
-
-    private void switchToSettingsScreen() {
-        // don't dispose this screen because we want to be able to return to it
-        // from the next screen
-        screenManager.setScreen(new SettingsScreen(assets, spriteBatch, screenManager));
-    }
-
-    private TextButton initialiseExitButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, EXIT_BUTTON_TEXT);
-        addExitButtonListener(button);
-        return button;
-    }
-
-    private void addExitButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToMainMenuScreen();
-                }
-            }
-
-        });
-    }
-
-    private void switchToMainMenuScreen() {
-        // dispose this screen because we won't be able to return to it
-        // from the next screen
-        screenManager.disposeAndClearAllScreens();
-        screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
     private Table getMenuTable() {

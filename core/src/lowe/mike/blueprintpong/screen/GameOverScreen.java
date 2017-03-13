@@ -20,7 +20,6 @@ final class GameOverScreen extends BaseScreen {
     private static final String COMPUTER_WINS_LABEL_TEXT = "Computer Wins";
     private static final String PLAYER_WINS_LABEL_TEXT = "You Win";
     private static final String PLAY_AGAIN_BUTTON_TEXT = "Play Again";
-    private static final String EXIT_BUTTON_TEXT = "Exit";
 
     private final GameScreen gameScreen;
     private final Label computerScoreLabel;
@@ -41,30 +40,14 @@ final class GameOverScreen extends BaseScreen {
     GameOverScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager, GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
-        this.computerScoreLabel = initialiseComputerScoreLabel();
-        this.playerScoreLabel = initialisePlayerScoreLabel();
+        this.computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets, this.gameScreen.computerScore);
+        this.playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets, this.gameScreen.playerScore);
         this.winnerLabel = initialiseWinnerLabel();
         this.playAgainButton = initialisePlayAgainButton();
-        this.exitButton = initialiseExitButton();
+        this.exitButton = ScreenUtils.createExitButton(this.assets, this.spriteBatch, this.screenManager);
         this.stage.addActor(getMenuTable());
         this.stage.addActor(this.computerScoreLabel);
         this.stage.addActor(this.playerScoreLabel);
-    }
-
-    private Label initialiseComputerScoreLabel() {
-        Label label = ScreenUtils.createLabel(assets.getMediumFont(), Integer.toString(gameScreen.computerScore));
-        float x = (viewport.getWorldWidth() / 4) - (label.getWidth() / 2);
-        float y = viewport.getWorldHeight() - label.getHeight();
-        label.setPosition(x, y);
-        return label;
-    }
-
-    private Label initialisePlayerScoreLabel() {
-        Label label = ScreenUtils.createLabel(assets.getMediumFont(), Integer.toString(gameScreen.playerScore));
-        float x = ((viewport.getWorldWidth() / 4) * 3) - (label.getWidth() / 2);
-        float y = viewport.getWorldHeight() - label.getHeight();
-        label.setPosition(x, y);
-        return label;
     }
 
     private Label initialiseWinnerLabel() {
@@ -94,32 +77,6 @@ final class GameOverScreen extends BaseScreen {
     private void switchToGameScreenAndRestart() {
         screenManager.switchToPreviousScreen();
         gameScreen.restartGame();
-    }
-
-    private TextButton initialiseExitButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, EXIT_BUTTON_TEXT);
-        addExitButtonListener(button);
-        return button;
-    }
-
-    private void addExitButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToMainMenuScreen();
-                }
-            }
-
-        });
-    }
-
-    private void switchToMainMenuScreen() {
-        // dispose this screen because we won't be able to return to it
-        // from the next screen
-        screenManager.disposeAndClearAllScreens();
-        screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
     }
 
     private Table getMenuTable() {

@@ -22,12 +22,12 @@ import lowe.mike.blueprintpong.BlueprintPongGame;
  */
 class BaseScreen extends ScreenAdapter {
 
-    static final float COMPONENT_SPACING = BlueprintPongGame.VIRTUAL_HEIGHT / 30;
+    static final float COMPONENT_SPACING = 8f;
 
     final Assets assets;
     final SpriteBatch spriteBatch;
     final ScreenManager screenManager;
-    final OrthographicCamera camera = new OrthographicCamera();
+    final OrthographicCamera camera;
     final Viewport viewport;
     final Stage stage;
 
@@ -56,24 +56,47 @@ class BaseScreen extends ScreenAdapter {
      * @param screenManager     the {@link ScreenManager} used to manage game {@link Screen}s
      * @param backgroundTexture the background {@link Texture}
      */
-    BaseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager, Texture backgroundTexture) {
+    BaseScreen(Assets assets,
+               SpriteBatch spriteBatch,
+               ScreenManager screenManager,
+               Texture backgroundTexture) {
         this.assets = assets;
         this.spriteBatch = spriteBatch;
         this.screenManager = screenManager;
-        this.camera.setToOrtho(false);
-        this.viewport = new FitViewport(
-                BlueprintPongGame.VIRTUAL_WIDTH,
+        this.camera = initialiseCamera();
+        this.viewport = initialiseViewport();
+        this.background = initialiseBackground(backgroundTexture);
+        this.stage = initialiseStage();
+    }
+
+    private OrthographicCamera initialiseCamera() {
+        OrthographicCamera camera = new OrthographicCamera();
+        camera.setToOrtho(false);
+        return camera;
+    }
+
+    private Viewport initialiseViewport() {
+        return new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH,
                 BlueprintPongGame.VIRTUAL_HEIGHT,
-                this.camera
+                camera
         );
-        this.stage = new Stage(this.viewport, this.spriteBatch);
-        this.background = new Image(backgroundTexture);
-        this.stage.addActor(this.background);
+    }
+
+    private Image initialiseBackground(Texture texture) {
+        Image background = new Image(texture);
+        ScreenUtils.scaleActor(background);
+        return background;
+    }
+
+    private Stage initialiseStage() {
+        Stage stage = new Stage(viewport, spriteBatch);
+        stage.addActor(background);
+        return stage;
     }
 
     @Override
     public final void show() {
-        Gdx.input.setInputProcessor(this.stage);
+        Gdx.input.setInputProcessor(stage);
         onShow();
     }
 
@@ -87,7 +110,6 @@ class BaseScreen extends ScreenAdapter {
     @Override
     public final void resize(int width, int height) {
         viewport.update(width, height);
-        background.setSize(viewport.getWorldWidth(), viewport.getWorldHeight());
     }
 
     @Override
@@ -129,7 +151,6 @@ class BaseScreen extends ScreenAdapter {
     @Override
     public final void dispose() {
         stage.dispose();
-        Gdx.app.log("Disposed", this.getClass().getName());
         onDispose();
     }
 

@@ -3,7 +3,6 @@ package lowe.mike.blueprintpong.screen;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -22,12 +21,11 @@ import lowe.mike.blueprintpong.Assets;
 final class DifficultyScreen extends BaseScreen {
 
     private static final String DIFFICULTY_LABEL_TEXT = "Select Difficulty";
-    private static final String BACK_BUTTON_TEXT = "Back";
     private static final String PLAY_BUTTON_TEXT = "Play";
 
     private final Label difficultyLabel;
     private final ButtonGroup<TextButton> difficultyButtonGroup;
-    private final Button backButton;
+    private final TextButton backButton;
     private final TextButton playButton;
 
     /**
@@ -42,28 +40,9 @@ final class DifficultyScreen extends BaseScreen {
         super(assets, spriteBatch, screenManager);
         this.difficultyLabel = ScreenUtils.createLabel(this.assets.getLargeFont(), DIFFICULTY_LABEL_TEXT);
         this.difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(this.assets);
-        this.backButton = initialiseBackButton();
+        this.backButton = ScreenUtils.createBackButton(this.assets, this.screenManager);
         this.playButton = initialisePlayButton();
         this.stage.addActor(getMenuTable());
-    }
-
-    private TextButton initialiseBackButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
-        addBackButtonListener(button);
-        return button;
-    }
-
-    private void addBackButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
-
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    screenManager.switchToPreviousScreen();
-                }
-            }
-
-        });
     }
 
     private TextButton initialisePlayButton() {

@@ -16,6 +16,8 @@ public final class BlueprintPongGame extends Game {
     public static final String TITLE = "Blueprint Pong";
     public static final float VIRTUAL_WIDTH = 320f;
     public static final float VIRTUAL_HEIGHT = 180f;
+    public static final float X_SCALE = VIRTUAL_WIDTH / 1440f;
+    public static final float Y_SCALE = VIRTUAL_HEIGHT / 810f;
     public static final float PPM = 100f;
 
     private Assets assets;

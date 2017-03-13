@@ -1,6 +1,5 @@
 package lowe.mike.blueprintpong;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
@@ -47,16 +46,11 @@ public final class Assets implements Disposable {
             = new AssetDescriptor<Sound>("point-scored.ogg", Sound.class);
 
     private static final Color FONT_COLOUR = Color.WHITE;
+    private static final int EXTRA_LARGE_VIRTUAL_FONT_SIZE = 56;
+    private static final int LARGE_VIRTUAL_FONT_SIZE = 36;
+    private static final int MEDIUM_VIRTUAL_FONT_SIZE = 24;
 
-    /*
-     * These are used to determine the portion of the screen that a font
-     * should take up.
-     */
-    private static final int EXTRA_LARGE_FONT_DIVISOR = 6;
-    private static final int LARGE_FONT_DIVISOR = 8;
-    private static final int MEDIUM_FONT_DIVISOR = 13;
-
-    private final AssetManager assetManager = new AssetManager();
+    private AssetManager assetManager;
 
     /*
      * References to assets.
@@ -79,8 +73,21 @@ public final class Assets implements Disposable {
      * Creates a new {@code Assets} instance.
      */
     Assets() {
+        assetManager = initialiseAssetManager();
         loadSplashBackgroundTexture();
         loadMainAssets();
+    }
+
+    private AssetManager initialiseAssetManager() {
+        AssetManager assetManager = new AssetManager();
+
+        // need this so we can load in fonts
+        assetManager.setLoader(
+                FreeTypeFontGenerator.class,
+                new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver())
+        );
+
+        return assetManager;
     }
 
     /*
@@ -108,11 +115,6 @@ public final class Assets implements Disposable {
     }
 
     private void loadMainAssets() {
-        // need this so we can load in fonts
-        assetManager.setLoader(
-                FreeTypeFontGenerator.class,
-                new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver())
-        );
         loadAsset(
                 FONT_GENERATOR_ASSET_DESCRIPTOR,
                 BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
@@ -146,14 +148,15 @@ public final class Assets implements Disposable {
 
         FreeTypeFontGenerator.FreeTypeFontParameter parameter
                 = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
         parameter.color = FONT_COLOUR;
         // apply smoothing filters
         parameter.minFilter = Texture.TextureFilter.Linear;
         parameter.magFilter = Texture.TextureFilter.Linear;
 
-        extraLargeFont = loadFont(fontGenerator, parameter, EXTRA_LARGE_FONT_DIVISOR);
-        largeFont = loadFont(fontGenerator, parameter, LARGE_FONT_DIVISOR);
-        mediumFont = loadFont(fontGenerator, parameter, MEDIUM_FONT_DIVISOR);
+        extraLargeFont = loadFont(fontGenerator, parameter, EXTRA_LARGE_VIRTUAL_FONT_SIZE);
+        largeFont = loadFont(fontGenerator, parameter, LARGE_VIRTUAL_FONT_SIZE);
+        mediumFont = loadFont(fontGenerator, parameter, MEDIUM_VIRTUAL_FONT_SIZE);
 
         // finished with font generator so dispose it
         assetManager.unload(FONT_GENERATOR_ASSET_DESCRIPTOR.fileName);
@@ -161,13 +164,12 @@ public final class Assets implements Disposable {
 
     private BitmapFont loadFont(FreeTypeFontGenerator fontGenerator,
                                 FreeTypeFontGenerator.FreeTypeFontParameter parameter,
-                                int divisor) {
-        parameter.size = Gdx.graphics.getWidth() / divisor;
+                                int virtualFontSize) {
+        parameter.size = (int) (virtualFontSize / BlueprintPongGame.X_SCALE);
         BitmapFont font = fontGenerator.generateFont(parameter);
-        font.getData().setScale(
-                BlueprintPongGame.VIRTUAL_WIDTH / Gdx.graphics.getWidth(),
-                BlueprintPongGame.VIRTUAL_HEIGHT / Gdx.graphics.getHeight()
-        );
+
+        font.getData().setScale(BlueprintPongGame.X_SCALE, BlueprintPongGame.Y_SCALE);
+
         return font;
     }
 
