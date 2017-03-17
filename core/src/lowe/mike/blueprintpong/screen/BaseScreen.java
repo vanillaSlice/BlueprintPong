@@ -27,12 +27,9 @@ class BaseScreen extends ScreenAdapter {
     final Assets assets;
     final SpriteBatch spriteBatch;
     final ScreenManager screenManager;
-    final OrthographicCamera camera;
+    final OrthographicCamera camera = new OrthographicCamera();
     final Viewport viewport;
     final Stage stage;
-
-    private final Image background;
-    private boolean isPaused;
 
     /**
      * Creates a new {@code BaseScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -56,55 +53,30 @@ class BaseScreen extends ScreenAdapter {
      * @param screenManager     the {@link ScreenManager} used to manage game {@link Screen}s
      * @param backgroundTexture the background {@link Texture}
      */
-    BaseScreen(Assets assets,
-               SpriteBatch spriteBatch,
-               ScreenManager screenManager,
+    BaseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
                Texture backgroundTexture) {
         this.assets = assets;
         this.spriteBatch = spriteBatch;
         this.screenManager = screenManager;
-        this.camera = initialiseCamera();
-        this.viewport = initialiseViewport();
-        this.background = initialiseBackground(backgroundTexture);
-        this.stage = initialiseStage();
-    }
-
-    private OrthographicCamera initialiseCamera() {
-        OrthographicCamera camera = new OrthographicCamera();
-        camera.setToOrtho(false);
-        return camera;
-    }
-
-    private Viewport initialiseViewport() {
-        return new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH,
+        this.camera.setToOrtho(false);
+        this.viewport = new FitViewport(
+                BlueprintPongGame.VIRTUAL_WIDTH,
                 BlueprintPongGame.VIRTUAL_HEIGHT,
-                camera
+                this.camera
         );
+        this.stage = new Stage(this.viewport, this.spriteBatch);
+        addBackground(backgroundTexture);
     }
 
-    private Image initialiseBackground(Texture texture) {
-        Image background = new Image(texture);
+    private void addBackground(Texture backgroundTexture) {
+        Image background = new Image(backgroundTexture);
         ScreenUtils.scaleActor(background);
-        return background;
-    }
-
-    private Stage initialiseStage() {
-        Stage stage = new Stage(viewport, spriteBatch);
         stage.addActor(background);
-        return stage;
     }
 
     @Override
     public final void show() {
         Gdx.input.setInputProcessor(stage);
-        onShow();
-    }
-
-    /**
-     * Method that subclasses can override to determine what
-     * happens when this becomes the current {@link Screen}.
-     */
-    void onShow() {
     }
 
     @Override
@@ -113,30 +85,13 @@ class BaseScreen extends ScreenAdapter {
     }
 
     @Override
-    public final void pause() {
-        isPaused = true;
-    }
-
-    @Override
-    public final void resume() {
-        isPaused = false;
-    }
-
-    @Override
     public final void render(float delta) {
-        if (isPaused) {
-            return;
-        }
-        clearScreen();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         update(delta);
         spriteBatch.setProjectionMatrix(camera.combined);
         stage.act(delta);
         stage.draw();
-    }
-
-    private static void clearScreen() {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Gdx.gl.glClearColor(0, 0, 0, 0);
     }
 
     /**

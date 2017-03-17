@@ -30,12 +30,10 @@ public final class BlueprintPong {
 
     private static LwjglApplicationConfiguration initialiseConfig() {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-
         config.title = BlueprintPongGame.TITLE;
         config.width = WIDTH;
         config.height = HEIGHT;
         addIcons(config);
-
         return config;
     }
 

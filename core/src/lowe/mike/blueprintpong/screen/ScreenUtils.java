@@ -72,6 +72,16 @@ final class ScreenUtils {
      * @return the {@link TextButton}
      */
     static TextButton createTextButton(Assets assets, String text) {
+        TextButton.TextButtonStyle style = getTextButtonStyle(assets);
+        TextButton button = new TextButton(text, style);
+        float padding = (button.getHeight() - style.font.getCapHeight()) / 2;
+        button.getLabelCell().padLeft(padding).padRight(padding);
+        button.align(Align.center);
+        button.pack();
+        return button;
+    }
+
+    private static TextButton.TextButtonStyle getTextButtonStyle(Assets assets) {
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.fontColor = PRIMARY_TEXT_BUTTON_FONT_COLOUR;
         style.downFontColor = SECONDARY_TEXT_BUTTON_FONT_COLOUR;
@@ -82,12 +92,7 @@ final class ScreenUtils {
         style.over = style.down;
         style.checked = style.down;
         style.font = assets.getMediumFont();
-        TextButton textButton = new TextButton(text, style);
-        float padding = (textButton.getHeight() - style.font.getCapHeight()) / 2;
-        textButton.getLabelCell().padLeft(padding).padRight(padding);
-        textButton.align(Align.center);
-        textButton.pack();
-        return textButton;
+        return style;
     }
 
     private static TextureRegionDrawable getTextureRegionDrawable(Texture texture) {
@@ -103,21 +108,29 @@ final class ScreenUtils {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @return the settings {@link TextButton}
      */
-    static TextButton createSettingsButton(final Assets assets,
-                                           final SpriteBatch spriteBatch,
-                                           final ScreenManager screenManager) {
-        final TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
+    static TextButton createSettingsButton(Assets assets,
+                                           SpriteBatch spriteBatch,
+                                           ScreenManager screenManager) {
+        TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
+        addSettingsButtonListener(button, assets, spriteBatch, screenManager);
+        return button;
+    }
+
+    private static void addSettingsButtonListener(final TextButton button,
+                                                  final Assets assets,
+                                                  final SpriteBatch spriteBatch,
+                                                  final ScreenManager screenManager) {
         button.addListener(new ChangeListener() {
 
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     screenManager.setScreen(new SettingsScreen(assets, spriteBatch, screenManager));
+                    button.setChecked(false);
                 }
             }
 
         });
-        return button;
     }
 
     /**
@@ -128,20 +141,25 @@ final class ScreenUtils {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @return the back {@link TextButton}
      */
-    static TextButton createBackButton(final Assets assets,
-                                       final ScreenManager screenManager) {
-        final TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
+    static TextButton createBackButton(Assets assets, ScreenManager screenManager) {
+        TextButton button = ScreenUtils.createTextButton(assets, BACK_BUTTON_TEXT);
+        addBackButtonListener(button, screenManager);
+        return button;
+    }
+
+    private static void addBackButtonListener(final TextButton button,
+                                              final ScreenManager screenManager) {
         button.addListener(new ChangeListener() {
 
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     screenManager.switchToPreviousScreen();
+                    button.setChecked(false);
                 }
             }
 
         });
-        return button;
     }
 
     /**
@@ -151,12 +169,20 @@ final class ScreenUtils {
      * @param assets        {@link Assets} needed to create the {@link TextButton}
      * @param spriteBatch   {@link SpriteBatch} to add sprites to
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
-     * @return the settings {@link TextButton}
+     * @return the exit {@link TextButton}
      */
-    static TextButton createExitButton(final Assets assets,
-                                       final SpriteBatch spriteBatch,
-                                       final ScreenManager screenManager) {
-        final TextButton button = ScreenUtils.createTextButton(assets, EXIT_BUTTON_TEXT);
+    static TextButton createExitButton(Assets assets,
+                                       SpriteBatch spriteBatch,
+                                       ScreenManager screenManager) {
+        TextButton button = ScreenUtils.createTextButton(assets, EXIT_BUTTON_TEXT);
+        addExitButtonListener(button, assets, spriteBatch, screenManager);
+        return button;
+    }
+
+    private static void addExitButtonListener(final TextButton button,
+                                              final Assets assets,
+                                              final SpriteBatch spriteBatch,
+                                              final ScreenManager screenManager) {
         button.addListener(new ChangeListener() {
 
             @Override
@@ -164,11 +190,11 @@ final class ScreenUtils {
                 if (button.isChecked()) {
                     screenManager.disposeAndClearAllScreens();
                     screenManager.setScreen(new MainMenuScreen(assets, spriteBatch, screenManager));
+                    button.setChecked(false);
                 }
             }
 
         });
-        return button;
     }
 
     /**
@@ -178,6 +204,13 @@ final class ScreenUtils {
      * @return a {@link ButtonGroup} of difficulty {@link TextButton}s
      */
     static ButtonGroup<TextButton> createDifficultyButtonGroup(Assets assets) {
+        Array<TextButton> buttons = createDifficultyButtons(assets);
+        ButtonGroup<TextButton> buttonGroup = new ButtonGroup<TextButton>(buttons.toArray());
+        buttonGroup.setMaxCheckCount(1);
+        return buttonGroup;
+    }
+
+    private static Array<TextButton> createDifficultyButtons(Assets assets) {
         Array<TextButton> buttons = new Array<TextButton>(TextButton.class);
 
         Difficulty currentDifficulty = GamePreferences.getDifficulty();
@@ -190,10 +223,7 @@ final class ScreenUtils {
             buttons.add(button);
         }
 
-        ButtonGroup<TextButton> buttonGroup = new ButtonGroup<TextButton>(buttons.toArray());
-        buttonGroup.setMinCheckCount(1);
-        buttonGroup.setMaxCheckCount(1);
-        return buttonGroup;
+        return buttons;
     }
 
     private static void addDifficultyButtonListener(final TextButton button,
@@ -211,33 +241,67 @@ final class ScreenUtils {
     }
 
     /**
-     * Creates a score {@link Label} for the computer.
+     * Creates a score {@link Label} to be positioned on the left side of the {@link Screen}.
      *
      * @param assets {@link Assets} needed to create the {@link Label}
-     * @param score  the score
-     * @return the computer score {@link Label}
+     * @param score  the score to initialise the {@link Label} with
+     * @return a score {@link Label}
      */
-    static Label createComputerScoreLabel(Assets assets, int score) {
-        return createScoreLabel(assets, score, .25f);
+    static Label createLeftScoreLabel(Assets assets, int score) {
+        Label label = createScoreLabel(assets);
+        updateLeftScoreLabel(label, score);
+        return label;
     }
 
     /**
-     * Creates a score {@link Label} for the player.
+     * Updates the left score {@link Label}'s text and position.
      *
-     * @param assets {@link Assets} needed to create the {@link Label}
-     * @param score  the score
-     * @return the player score {@link Label}
+     * @param label the {@link Label} to update
+     * @param score the score to update the {@link Label} with
      */
-    static Label createPlayerScoreLabel(Assets assets, int score) {
-        return createScoreLabel(assets, score, .75f);
+    static void updateLeftScoreLabel(Label label, int score) {
+        updateScoreLabelText(label, score);
+        updateScoreLabelPosition(label, .75f);
     }
 
-    private static Label createScoreLabel(Assets assets, int score, float positionFraction) {
-        Label label = ScreenUtils.createLabel(assets.getMediumFont(), Integer.toString(score));
-        float x = (BlueprintPongGame.VIRTUAL_WIDTH * positionFraction) - (label.getWidth() / 2);
-        float y = BlueprintPongGame.VIRTUAL_HEIGHT - label.getHeight() - BaseScreen.COMPONENT_SPACING;
-        label.setPosition(x, y);
+    /**
+     * Creates a score {@link Label} to be positioned on the right side of the {@link Screen}.
+     *
+     * @param assets {@link Assets} needed to create the {@link Label}
+     * @param score  the score to initialise the {@link Label} with
+     * @return a score {@link Label}
+     */
+    static Label createRightScoreLabel(Assets assets, int score) {
+        Label label = createScoreLabel(assets);
+        updateRightScoreLabel(label, score);
         return label;
+    }
+
+    /**
+     * Updates the right score {@link Label}'s text and position.
+     *
+     * @param label the {@link Label} to update
+     * @param score the score to update the {@link Label} with
+     */
+    static void updateRightScoreLabel(Label label, int score) {
+        updateScoreLabelText(label, score);
+        updateScoreLabelPosition(label, .25f);
+    }
+
+    private static Label createScoreLabel(Assets assets) {
+        return createLabel(assets.getMediumFont(), "");
+    }
+
+    private static void updateScoreLabelText(Label label, int score) {
+        label.setText(Integer.toString(score));
+        label.pack();
+    }
+
+    private static void updateScoreLabelPosition(Label label, float xPositionFraction) {
+        float x = (BlueprintPongGame.VIRTUAL_WIDTH * xPositionFraction) - (label.getWidth() / 2);
+        float y = BlueprintPongGame.VIRTUAL_HEIGHT - label.getHeight()
+                - BaseScreen.COMPONENT_SPACING;
+        label.setPosition(x, y);
     }
 
 }

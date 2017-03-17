@@ -22,11 +22,6 @@ final class GameOverScreen extends BaseScreen {
     private static final String PLAY_AGAIN_BUTTON_TEXT = "Play Again";
 
     private final GameScreen gameScreen;
-    private final Label computerScoreLabel;
-    private final Label playerScoreLabel;
-    private final Label winnerLabel;
-    private final TextButton playAgainButton;
-    private final TextButton exitButton;
 
     /**
      * Creates a new {@code GameOverScreen} given {@link Assets}, a {@link SpriteBatch}, a
@@ -37,25 +32,56 @@ final class GameOverScreen extends BaseScreen {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @param gameScreen    reference to the {@link GameScreen}
      */
-    GameOverScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager, GameScreen gameScreen) {
+    GameOverScreen(Assets assets,
+                   SpriteBatch spriteBatch,
+                   ScreenManager screenManager,
+                   GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
-        this.computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets, this.gameScreen.computerScore);
-        this.playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets, this.gameScreen.playerScore);
-        this.winnerLabel = initialiseWinnerLabel();
-        this.playAgainButton = initialisePlayAgainButton();
-        this.exitButton = ScreenUtils.createExitButton(this.assets, this.spriteBatch, this.screenManager);
-        this.stage.addActor(getMenuTable());
-        this.stage.addActor(this.computerScoreLabel);
-        this.stage.addActor(this.playerScoreLabel);
+        Table menu = createMenu();
+        Label leftScoreLabel = ScreenUtils.createLeftScoreLabel(
+                this.assets,
+                this.gameScreen.getComputerScore()
+        );
+        Label rightScoreLabel = ScreenUtils.createRightScoreLabel(
+                this.assets,
+                this.gameScreen.getPlayerScore()
+        );
+        this.stage.addActor(menu);
+        this.stage.addActor(leftScoreLabel);
+        this.stage.addActor(rightScoreLabel);
     }
 
-    private Label initialiseWinnerLabel() {
-        String message = (gameScreen.playerWon) ? PLAYER_WINS_LABEL_TEXT : COMPUTER_WINS_LABEL_TEXT;
+    private Table createMenu() {
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+
+        // add winner label
+        table.row();
+        Label winnerLabel = createWinnerLabel();
+        table.add(winnerLabel).expandX();
+
+        // add play again button
+        table.row().padBottom(COMPONENT_SPACING);
+        TextButton playAgainButton = createPlayAgainButton();
+        table.add(playAgainButton).expandX();
+
+        // add exit button
+        table.row();
+        TextButton exitButton = ScreenUtils.createExitButton(assets, spriteBatch, screenManager);
+        table.add(exitButton).expandX();
+
+        return table;
+    }
+
+    private Label createWinnerLabel() {
+        String message = (gameScreen.hasPlayerWon())
+                ? PLAYER_WINS_LABEL_TEXT : COMPUTER_WINS_LABEL_TEXT;
         return ScreenUtils.createLabel(assets.getLargeFont(), message);
     }
 
-    private TextButton initialisePlayAgainButton() {
+    private TextButton createPlayAgainButton() {
         TextButton button = ScreenUtils.createTextButton(assets, PLAY_AGAIN_BUTTON_TEXT);
         addPlayAgainButtonListener(button);
         return button;
@@ -68,6 +94,7 @@ final class GameOverScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     switchToGameScreenAndRestart();
+                    button.setChecked(false);
                 }
             }
 
@@ -76,20 +103,7 @@ final class GameOverScreen extends BaseScreen {
 
     private void switchToGameScreenAndRestart() {
         screenManager.switchToPreviousScreen();
-        gameScreen.restartGame();
-    }
-
-    private Table getMenuTable() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.row();
-        table.add(winnerLabel);
-        table.row().padBottom(COMPONENT_SPACING);
-        table.add(playAgainButton);
-        table.row();
-        table.add(exitButton);
-        return table;
+        gameScreen.newGame();
     }
 
 }

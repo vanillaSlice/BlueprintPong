@@ -4,6 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -12,7 +17,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lowe.mike.blueprintpong.Assets;
-import lowe.mike.blueprintpong.sprite.Paddle;
+import lowe.mike.blueprintpong.BlueprintPongGame;
+import lowe.mike.blueprintpong.actor.Ball;
+import lowe.mike.blueprintpong.actor.Paddle;
 
 /**
  * Screen to show when the game is being played.
@@ -23,25 +30,22 @@ final class GameScreen extends BaseScreen {
 
     private static final String PAUSE_BUTTON_TEXT = "Pause";
 
-
-    //    Paddles
-//    Ball
-//    Line
-//    Scores
-//    Win messages
-//    Pause button
-    int computerScore;
-    int playerScore;
-    boolean gameOver;
-    boolean playerWon;
-
+    private final Image line;
     private final Label computerScoreLabel;
     private final TextButton pauseButton;
     private final Label playerScoreLabel;
-    private final Image line;
 
     private final World world;
-    private final Paddle paddle;
+    private final Ball ball;
+    private final Paddle computerPaddle;
+    private final Paddle playerPaddle;
+    private int computerScore = 10;
+    private int playerScore = 5;
+    private boolean gameOver;
+    private boolean playerWon;
+
+    Box2DDebugRenderer debugRenderer;
+    Body ground;
 
     /**
      * Creates a new {@code GameScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -53,25 +57,51 @@ final class GameScreen extends BaseScreen {
      */
     GameScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets, 0);
+        this.line = initialiseLine();
+        this.computerScoreLabel = ScreenUtils.createLeftScoreLabel(this.assets, 0);
         this.pauseButton = initialisePauseButton();
-        this.playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets, 0);
-        this.line = new Image(assets.getLineTexture());
+        this.playerScoreLabel = ScreenUtils.createRightScoreLabel(this.assets, 0);
+        this.world = initialiseWorld();
+        this.ball = initialiseBall();
+        this.computerPaddle = initialisePaddle();
+        this.playerPaddle = initialisePaddle();
         this.stage.addActor(this.line);
         this.stage.addActor(this.computerScoreLabel);
         this.stage.addActor(this.pauseButton);
         this.stage.addActor(this.playerScoreLabel);
-        this.line.setX((viewport.getWorldWidth() / 2));
-        ScreenUtils.scaleActor(this.line);
-        this.world = new World(new Vector2(0, 0), true);
-        paddle = new Paddle(assets.getPaddleTexture(), world);
+        this.stage.addActor(this.ball);
+        this.stage.addActor(this.computerPaddle);
+        this.stage.addActor(this.playerPaddle);
+
+        debugRenderer = new Box2DDebugRenderer();
+        newGame();
+
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(0, -(1 / BlueprintPongGame.PPM));
+        ground = world.createBody(bodyDef);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(BlueprintPongGame.VIRTUAL_WIDTH / BlueprintPongGame.PPM, 1);
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        ground.createFixture(fixtureDef);
+        shape.dispose();
+    }
+
+    private Image initialiseLine() {
+        Image line = new Image(assets.getLineTexture());
+        line.setX(BlueprintPongGame.VIRTUAL_WIDTH / 2);
+        ScreenUtils.scaleActor(line);
+        return line;
     }
 
     private TextButton initialisePauseButton() {
         TextButton button = ScreenUtils.createTextButton(assets, PAUSE_BUTTON_TEXT);
         addPauseButtonListener(button);
-        float x = (viewport.getWorldWidth() / 2) - (button.getWidth() / 2);
-        float y = viewport.getWorldHeight() - button.getHeight() - COMPONENT_SPACING;
+        float x = (BlueprintPongGame.VIRTUAL_WIDTH / 2) - (button.getWidth() / 2);
+        float y = BlueprintPongGame.VIRTUAL_HEIGHT - button.getHeight() - COMPONENT_SPACING;
         button.setPosition(x, y);
         return button;
     }
@@ -83,6 +113,7 @@ final class GameScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     switchToPauseScreen();
+                    button.setChecked(false);
                 }
             }
 
@@ -95,17 +126,36 @@ final class GameScreen extends BaseScreen {
         screenManager.setScreen(new PauseScreen(assets, spriteBatch, screenManager, this));
     }
 
-    @Override
-    void onShow() {
-        pauseButton.setChecked(false);
+    private World initialiseWorld() {
+        World world = new World(new Vector2(0, -10f), true);
+        return world;
+    }
+
+    private Ball initialiseBall() {
+        Ball ball = new Ball(assets.getBallTexture(), world, 50, 50);
+        ScreenUtils.scaleActor(ball);
+        return ball;
+    }
+
+    private Paddle initialisePaddle() {
+        Paddle paddle = new Paddle(assets.getPaddleTexture(), world);
+        ScreenUtils.scaleActor(paddle);
+        return paddle;
+    }
+
+//    @Override
+//    void onShow() {
+//        pauseButton.setChecked(false);
+//    }
+
+    // done up to here
+
+    void newGame() {
+        Gdx.app.log("GameScreen", "New Game");
     }
 
     void resumeGame() {
         Gdx.app.log("GameScreen", "Resume");
-    }
-
-    void restartGame() {
-        Gdx.app.log("GameScreen", "Restart");
     }
 
     private void switchToGameOverScreen() {
@@ -117,7 +167,47 @@ final class GameScreen extends BaseScreen {
     @Override
     void update(float delta) {
         world.step(delta, 6, 2);
-        paddle.update();
+        debugRenderer.render(world, camera.combined.cpy().scale(BlueprintPongGame.PPM, BlueprintPongGame.PPM, 1f));
+
     }
 
+    private void updateComputerScoreLabel() {
+        ScreenUtils.updateLeftScoreLabel(computerScoreLabel, computerScore);
+    }
+
+    private void updatePlayerScoreLabel() {
+        ScreenUtils.updateRightScoreLabel(playerScoreLabel, playerScore);
+    }
+
+    /**
+     * @return the computer score
+     */
+    int getComputerScore() {
+        return computerScore;
+    }
+
+    /**
+     * @return the player score
+     */
+    int getPlayerScore() {
+        return playerScore;
+    }
+
+    /**
+     * @return {@code true} if the player has won; {@code false} if not
+     */
+    boolean hasPlayerWon() {
+        return playerWon;
+    }
+
+    @Override
+    void onDispose() {
+        world.dispose();
+    }
+
+
+    @Override
+    public void pause() {
+        switchToPauseScreen();
+    }
 }

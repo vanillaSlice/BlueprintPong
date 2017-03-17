@@ -22,10 +22,8 @@ public final class AndroidLauncher extends AndroidApplication {
 
     private static AndroidApplicationConfiguration initialiseConfig() {
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-
         config.useAccelerometer = false;
         config.useCompass = false;
-
         return config;
     }
 

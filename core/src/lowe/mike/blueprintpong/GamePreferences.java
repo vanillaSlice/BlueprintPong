@@ -18,7 +18,7 @@ public final class GamePreferences {
     private static final boolean PLAY_SOUNDS_DEFAULT = true;
 
     // don't want instances
-    private void GamePrefences() {
+    private GamePreferences() {
     }
 
     /**

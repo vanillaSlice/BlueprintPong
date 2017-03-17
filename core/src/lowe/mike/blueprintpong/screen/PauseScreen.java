@@ -20,10 +20,6 @@ final class PauseScreen extends BaseScreen {
     private static final String RESTART_BUTTON_TEXT = "Restart";
 
     private final GameScreen gameScreen;
-    private final TextButton resumeButton;
-    private final TextButton restartButton;
-    private final TextButton settingsButtons;
-    private final TextButton exitButton;
 
     /**
      * Creates a new {@code PauseScreen} given {@link Assets}, a {@link SpriteBatch}, a
@@ -34,17 +30,48 @@ final class PauseScreen extends BaseScreen {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @param gameScreen    reference to the {@link GameScreen}
      */
-    PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager, GameScreen gameScreen) {
+    PauseScreen(Assets assets,
+                SpriteBatch spriteBatch,
+                ScreenManager screenManager,
+                GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
-        this.resumeButton = initialiseResumeButton();
-        this.restartButton = initialiseRestartButton();
-        this.settingsButtons = ScreenUtils.createSettingsButton(this.assets, this.spriteBatch, this.screenManager);
-        this.exitButton = ScreenUtils.createExitButton(this.assets, this.spriteBatch, this.screenManager);
-        this.stage.addActor(getMenuTable());
+        this.stage.addActor(createMenu());
     }
 
-    private TextButton initialiseResumeButton() {
+    private Table createMenu() {
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+
+        // add resume button
+        table.row().padBottom(COMPONENT_SPACING);
+        TextButton resumeButton = createResumeButton();
+        table.add(resumeButton).expandX();
+
+        // add restart button
+        table.row().padBottom(COMPONENT_SPACING);
+        TextButton restartButton = createRestartButton();
+        table.add(restartButton).expandX();
+
+        // add settings button
+        table.row().padBottom(COMPONENT_SPACING);
+        TextButton settingsButton = ScreenUtils.createSettingsButton(
+                assets,
+                spriteBatch,
+                screenManager
+        );
+        table.add(settingsButton);
+
+        // add exit button
+        table.row();
+        TextButton exitButton = ScreenUtils.createExitButton(assets, spriteBatch, screenManager);
+        table.add(exitButton).expandX();
+
+        return table;
+    }
+
+    private TextButton createResumeButton() {
         TextButton button = ScreenUtils.createTextButton(assets, RESUME_BUTTON_TEXT);
         addResumeButtonListener(button);
         return button;
@@ -57,6 +84,7 @@ final class PauseScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     switchToGameScreenAndResume();
+                    button.setChecked(false);
                 }
             }
 
@@ -68,7 +96,7 @@ final class PauseScreen extends BaseScreen {
         gameScreen.resumeGame();
     }
 
-    private TextButton initialiseRestartButton() {
+    private TextButton createRestartButton() {
         TextButton button = ScreenUtils.createTextButton(assets, RESTART_BUTTON_TEXT);
         addRestartButtonListener(button);
         return button;
@@ -81,6 +109,7 @@ final class PauseScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     switchToGameScreenAndRestart();
+                    button.setChecked(false);
                 }
             }
 
@@ -89,31 +118,7 @@ final class PauseScreen extends BaseScreen {
 
     private void switchToGameScreenAndRestart() {
         screenManager.switchToPreviousScreen();
-        gameScreen.restartGame();
-    }
-
-    private Table getMenuTable() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.row().padBottom(COMPONENT_SPACING);
-        table.add(resumeButton);
-        table.row().padBottom(COMPONENT_SPACING);
-        table.add(restartButton);
-        table.row().padBottom(COMPONENT_SPACING);
-        table.add(settingsButtons);
-        table.row();
-        table.add(exitButton);
-        return table;
-    }
-
-    @Override
-    void onShow() {
-        // ensure all buttons are unchecked when the screen is shown
-        resumeButton.setChecked(false);
-        restartButton.setChecked(false);
-        settingsButtons.setChecked(false);
-        exitButton.setChecked(false);
+        gameScreen.newGame();
     }
 
 }

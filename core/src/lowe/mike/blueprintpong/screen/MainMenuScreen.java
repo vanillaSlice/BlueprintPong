@@ -20,10 +20,6 @@ final class MainMenuScreen extends BaseScreen {
 
     private static final String PLAY_BUTTON_TEXT = "Play";
 
-    private final Label titleLabel;
-    private final TextButton playButton;
-    private final TextButton settingsButton;
-
     /**
      * Creates a new {@code MainMenuScreen} given {@link Assets}, a {@link SpriteBatch}
      * and a {@link ScreenManager}.
@@ -34,13 +30,41 @@ final class MainMenuScreen extends BaseScreen {
      */
     MainMenuScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.titleLabel = ScreenUtils.createLabel(this.assets.getExtraLargeFont(), BlueprintPongGame.TITLE);
-        this.playButton = initialisePlayButton();
-        this.settingsButton = ScreenUtils.createSettingsButton(this.assets, this.spriteBatch, this.screenManager);
-        this.stage.addActor(getMenuTable());
+        Table menu = createMenu();
+        this.stage.addActor(menu);
     }
 
-    private TextButton initialisePlayButton() {
+    private Table createMenu() {
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+
+        // add title
+        table.row();
+        Label titleLabel = ScreenUtils.createLabel(
+                assets.getExtraLargeFont(),
+                BlueprintPongGame.TITLE
+        );
+        table.add(titleLabel).expandX();
+
+        // add play button
+        table.row();
+        TextButton playButton = createPlayButton();
+        table.add(playButton).expandX();
+
+        // add settings button
+        table.row().padTop(COMPONENT_SPACING);
+        TextButton settingsButton = ScreenUtils.createSettingsButton(
+                assets,
+                spriteBatch,
+                screenManager
+        );
+        table.add(settingsButton).expandX();
+
+        return table;
+    }
+
+    private TextButton createPlayButton() {
         TextButton button = ScreenUtils.createTextButton(assets, PLAY_BUTTON_TEXT);
         addPlayButtonListener(button);
         return button;
@@ -53,36 +77,18 @@ final class MainMenuScreen extends BaseScreen {
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
                     switchToDifficultyScreen();
+                    button.setChecked(false);
                 }
             }
 
         });
+
     }
 
     private void switchToDifficultyScreen() {
         // don't dispose this screen because we want to be able to return to it
         // from the next screen
         screenManager.setScreen(new DifficultyScreen(assets, spriteBatch, screenManager));
-    }
-
-    private Table getMenuTable() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.row();
-        table.add(titleLabel).expandX();
-        table.row();
-        table.add(playButton).expandX();
-        table.row().padTop(COMPONENT_SPACING);
-        table.add(settingsButton).expandX();
-        return table;
-    }
-
-    @Override
-    void onShow() {
-        // ensure all buttons are unchecked when the screen is shown
-        playButton.setChecked(false);
-        settingsButton.setChecked(false);
     }
 
 }

@@ -3,15 +3,16 @@ package lowe.mike.blueprintpong.screen;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 
 import lowe.mike.blueprintpong.Assets;
+import lowe.mike.blueprintpong.Difficulty;
 import lowe.mike.blueprintpong.GamePreferences;
 
 /**
@@ -27,13 +28,6 @@ final class SettingsScreen extends BaseScreen {
     private static final String ON_BUTTON_TEXT = "On";
     private static final String OFF_BUTTON_TEXT = "Off";
 
-    private final Label settingsLabel;
-    private final Label difficultyLabel;
-    private final ButtonGroup<TextButton> difficultyButtonGroup;
-    private final Label soundsLabel;
-    private final ButtonGroup<TextButton> soundsButtonGroup;
-    private final Button backButton;
-
     /**
      * Creates a new {@code SettingsScreen} given {@link Assets}, a {@link SpriteBatch}
      * and a {@link ScreenManager}.
@@ -44,16 +38,56 @@ final class SettingsScreen extends BaseScreen {
      */
     SettingsScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
         super(assets, spriteBatch, screenManager);
-        this.settingsLabel = ScreenUtils.createLabel(this.assets.getLargeFont(), SETTINGS_LABEL_TEXT);
-        this.difficultyLabel = ScreenUtils.createLabel(this.assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
-        this.difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(this.assets);
-        this.soundsLabel = ScreenUtils.createLabel(this.assets.getMediumFont(), SOUNDS_LABEL_TEXT);
-        this.soundsButtonGroup = initialiseSoundsButtonGroup();
-        this.backButton = ScreenUtils.createBackButton(this.assets, this.screenManager);
-        this.stage.addActor(getMenuTable());
+        Table menu = createMenu();
+        this.stage.addActor(menu);
     }
 
-    private ButtonGroup<TextButton> initialiseSoundsButtonGroup() {
+    private Table createMenu() {
+        Table table = new Table();
+        table.setFillParent(true);
+        table.center();
+
+        // number of columns in table = number difficulty buttons + difficulty label
+        int colSpan = Difficulty.values().length + 1;
+
+        // add settings label
+        table.row();
+        Label settingsLabel = ScreenUtils.createLabel(assets.getLargeFont(), SETTINGS_LABEL_TEXT);
+        table.add(settingsLabel).expandX().colspan(colSpan);
+
+        // add difficulty buttons
+        table.row();
+        Label difficultyLabel = ScreenUtils.createLabel(
+                assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
+        ButtonGroup<TextButton> difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(
+                assets
+        );
+        addButtonGroup(table, difficultyLabel, difficultyButtonGroup);
+
+        // add sound buttons
+        table.row().padTop(COMPONENT_SPACING);
+        Label soundsLabel = ScreenUtils.createLabel(assets.getMediumFont(), SOUNDS_LABEL_TEXT);
+        ButtonGroup<TextButton> soundButtonGroup = createSoundButtonGroup();
+        addButtonGroup(table, soundsLabel, soundButtonGroup);
+
+        // add back button
+        table.row().padTop(COMPONENT_SPACING);
+        TextButton backButton = ScreenUtils.createBackButton(assets, screenManager);
+        table.add(backButton).expandX().colspan(colSpan);
+
+        return table;
+    }
+
+    private ButtonGroup<TextButton> createSoundButtonGroup() {
+        Array<TextButton> buttons = createSoundButtons();
+        ButtonGroup<TextButton> buttonGroup = new ButtonGroup<TextButton>(buttons.toArray());
+        buttonGroup.setMaxCheckCount(1);
+        return buttonGroup;
+    }
+
+    private Array<TextButton> createSoundButtons() {
+        Array<TextButton> buttons = new Array<TextButton>(TextButton.class);
+
         boolean playSounds = GamePreferences.shouldPlaySounds();
 
         TextButton onButton = ScreenUtils.createTextButton(assets, ON_BUTTON_TEXT);
@@ -65,10 +99,9 @@ final class SettingsScreen extends BaseScreen {
         addSoundButtonListener(onButton, true);
         addSoundButtonListener(offButton, false);
 
-        ButtonGroup<TextButton> buttonGroup = new ButtonGroup<TextButton>(onButton, offButton);
-        buttonGroup.setMinCheckCount(1);
-        buttonGroup.setMaxCheckCount(1);
-        return buttonGroup;
+        buttons.addAll(onButton, offButton);
+
+        return buttons;
     }
 
     private void addSoundButtonListener(final TextButton button, final boolean playSounds) {
@@ -82,22 +115,6 @@ final class SettingsScreen extends BaseScreen {
             }
 
         });
-    }
-
-    private Table getMenuTable() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.row();
-        int colspan = difficultyButtonGroup.getButtons().size + 1;
-        table.add(settingsLabel).expandX().colspan(colspan);
-        table.row();
-        addButtonGroup(table, difficultyLabel, difficultyButtonGroup);
-        table.row().padTop(COMPONENT_SPACING);
-        addButtonGroup(table, soundsLabel, soundsButtonGroup);
-        table.row().padTop(COMPONENT_SPACING);
-        table.add(backButton).expandX().colspan(colspan);
-        return table;
     }
 
     private void addButtonGroup(Table table, Label label, ButtonGroup<TextButton> buttonGroup) {
