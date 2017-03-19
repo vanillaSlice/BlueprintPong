@@ -39,17 +39,17 @@ final class GameOverScreen extends BaseScreen {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
         Table menu = createMenu();
-        Label leftScoreLabel = ScreenUtils.createLeftScoreLabel(
+        Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(
                 this.assets,
                 this.gameScreen.getComputerScore()
         );
-        Label rightScoreLabel = ScreenUtils.createRightScoreLabel(
+        Label playerScoreLabel = ScreenUtils.createPlayerScoreLabel(
                 this.assets,
                 this.gameScreen.getPlayerScore()
         );
         this.stage.addActor(menu);
-        this.stage.addActor(leftScoreLabel);
-        this.stage.addActor(rightScoreLabel);
+        this.stage.addActor(computerScoreLabel);
+        this.stage.addActor(playerScoreLabel);
     }
 
     private Table createMenu() {

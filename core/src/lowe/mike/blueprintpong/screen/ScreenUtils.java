@@ -41,15 +41,6 @@ final class ScreenUtils {
     }
 
     /**
-     * Scales {@link Actor}s to the correct size for the screen.
-     *
-     * @param actor the {@link Actor} to scale
-     */
-    static void scaleActor(Actor actor) {
-        actor.setScale(BlueprintPongGame.X_SCALE, BlueprintPongGame.Y_SCALE);
-    }
-
-    /**
      * Creates a {@link Label} with the given {@link BitmapFont} and text.
      *
      * @param font the {@link BitmapFont}
@@ -241,49 +232,51 @@ final class ScreenUtils {
     }
 
     /**
-     * Creates a score {@link Label} to be positioned on the left side of the {@link Screen}.
+     * Creates the computer score {@link Label} to be positioned
+     * on the left side of the {@link Screen}.
      *
      * @param assets {@link Assets} needed to create the {@link Label}
      * @param score  the score to initialise the {@link Label} with
      * @return a score {@link Label}
      */
-    static Label createLeftScoreLabel(Assets assets, int score) {
+    static Label createComputerScoreLabel(Assets assets, int score) {
         Label label = createScoreLabel(assets);
-        updateLeftScoreLabel(label, score);
+        updateComputerScoreLabel(label, score);
         return label;
     }
 
     /**
-     * Updates the left score {@link Label}'s text and position.
+     * Updates the computer score {@link Label}'s text and position.
      *
      * @param label the {@link Label} to update
      * @param score the score to update the {@link Label} with
      */
-    static void updateLeftScoreLabel(Label label, int score) {
+    static void updateComputerScoreLabel(Label label, int score) {
         updateScoreLabelText(label, score);
         updateScoreLabelPosition(label, .75f);
     }
 
     /**
-     * Creates a score {@link Label} to be positioned on the right side of the {@link Screen}.
+     * Creates the player score {@link Label} to be positioned
+     * on the right side of the {@link Screen}.
      *
      * @param assets {@link Assets} needed to create the {@link Label}
      * @param score  the score to initialise the {@link Label} with
      * @return a score {@link Label}
      */
-    static Label createRightScoreLabel(Assets assets, int score) {
+    static Label createPlayerScoreLabel(Assets assets, int score) {
         Label label = createScoreLabel(assets);
-        updateRightScoreLabel(label, score);
+        updatePlayerScoreLabel(label, score);
         return label;
     }
 
     /**
-     * Updates the right score {@link Label}'s text and position.
+     * Updates the player score {@link Label}'s text and position.
      *
      * @param label the {@link Label} to update
      * @param score the score to update the {@link Label} with
      */
-    static void updateRightScoreLabel(Label label, int score) {
+    static void updatePlayerScoreLabel(Label label, int score) {
         updateScoreLabelText(label, score);
         updateScoreLabelPosition(label, .25f);
     }

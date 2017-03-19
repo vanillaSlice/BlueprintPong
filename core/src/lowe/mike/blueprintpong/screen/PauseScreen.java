@@ -83,17 +83,12 @@ final class PauseScreen extends BaseScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
-                    switchToGameScreenAndResume();
+                    screenManager.switchToPreviousScreen();
                     button.setChecked(false);
                 }
             }
 
         });
-    }
-
-    private void switchToGameScreenAndResume() {
-        screenManager.switchToPreviousScreen();
-        gameScreen.resumeGame();
     }
 
     private TextButton createRestartButton() {

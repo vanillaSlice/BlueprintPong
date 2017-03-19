@@ -70,7 +70,7 @@ class BaseScreen extends ScreenAdapter {
 
     private void addBackground(Texture backgroundTexture) {
         Image background = new Image(backgroundTexture);
-        ScreenUtils.scaleActor(background);
+        background.setScale(BlueprintPongGame.X_SCALE, BlueprintPongGame.Y_SCALE);
         stage.addActor(background);
     }
 
