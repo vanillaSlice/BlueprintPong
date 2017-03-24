@@ -65,7 +65,7 @@ final class ScreenUtils {
     static TextButton createTextButton(Assets assets, String text) {
         TextButton.TextButtonStyle style = getTextButtonStyle(assets);
         TextButton button = new TextButton(text, style);
-        float padding = (button.getHeight() - style.font.getCapHeight()) / 2;
+        float padding = (button.getHeight() - style.font.getCapHeight()) / 2f;
         button.getLabelCell().padLeft(padding).padRight(padding);
         button.align(Align.center);
         button.pack();
@@ -99,16 +99,14 @@ final class ScreenUtils {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @return the settings {@link TextButton}
      */
-    static TextButton createSettingsButton(Assets assets,
-                                           SpriteBatch spriteBatch,
+    static TextButton createSettingsButton(Assets assets, SpriteBatch spriteBatch,
                                            ScreenManager screenManager) {
         TextButton button = ScreenUtils.createTextButton(assets, SETTINGS_BUTTON_TEXT);
         addSettingsButtonListener(button, assets, spriteBatch, screenManager);
         return button;
     }
 
-    private static void addSettingsButtonListener(final TextButton button,
-                                                  final Assets assets,
+    private static void addSettingsButtonListener(final TextButton button, final Assets assets,
                                                   final SpriteBatch spriteBatch,
                                                   final ScreenManager screenManager) {
         button.addListener(new ChangeListener() {
@@ -162,16 +160,14 @@ final class ScreenUtils {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @return the exit {@link TextButton}
      */
-    static TextButton createExitButton(Assets assets,
-                                       SpriteBatch spriteBatch,
+    static TextButton createExitButton(Assets assets, SpriteBatch spriteBatch,
                                        ScreenManager screenManager) {
         TextButton button = ScreenUtils.createTextButton(assets, EXIT_BUTTON_TEXT);
         addExitButtonListener(button, assets, spriteBatch, screenManager);
         return button;
     }
 
-    private static void addExitButtonListener(final TextButton button,
-                                              final Assets assets,
+    private static void addExitButtonListener(final TextButton button, final Assets assets,
                                               final SpriteBatch spriteBatch,
                                               final ScreenManager screenManager) {
         button.addListener(new ChangeListener() {
@@ -253,7 +249,7 @@ final class ScreenUtils {
      */
     static void updateComputerScoreLabel(Label label, int score) {
         updateScoreLabelText(label, score);
-        updateScoreLabelPosition(label, .75f);
+        updateScoreLabelPosition(label, .25f);
     }
 
     /**
@@ -278,7 +274,7 @@ final class ScreenUtils {
      */
     static void updatePlayerScoreLabel(Label label, int score) {
         updateScoreLabelText(label, score);
-        updateScoreLabelPosition(label, .25f);
+        updateScoreLabelPosition(label, .75f);
     }
 
     private static Label createScoreLabel(Assets assets) {
@@ -291,7 +287,7 @@ final class ScreenUtils {
     }
 
     private static void updateScoreLabelPosition(Label label, float xPositionFraction) {
-        float x = (BlueprintPongGame.VIRTUAL_WIDTH * xPositionFraction) - (label.getWidth() / 2);
+        float x = (BlueprintPongGame.VIRTUAL_WIDTH * xPositionFraction) - (label.getWidth() / 2f);
         float y = BlueprintPongGame.VIRTUAL_HEIGHT - label.getHeight()
                 - BaseScreen.COMPONENT_SPACING;
         label.setPosition(x, y);

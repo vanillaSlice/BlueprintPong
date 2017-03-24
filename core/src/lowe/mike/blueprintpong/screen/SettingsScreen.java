@@ -57,11 +57,10 @@ final class SettingsScreen extends BaseScreen {
 
         // add difficulty buttons
         table.row();
-        Label difficultyLabel = ScreenUtils.createLabel(
-                assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
-        ButtonGroup<TextButton> difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(
-                assets
-        );
+        Label difficultyLabel = ScreenUtils.createLabel(assets.getMediumFont(),
+                DIFFICULTY_LABEL_TEXT);
+        ButtonGroup<TextButton> difficultyButtonGroup
+                = ScreenUtils.createDifficultyButtonGroup(assets);
         addButtonGroup(table, difficultyLabel, difficultyButtonGroup);
 
         // add sound buttons

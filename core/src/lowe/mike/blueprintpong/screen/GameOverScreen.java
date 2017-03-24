@@ -32,21 +32,15 @@ final class GameOverScreen extends BaseScreen {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @param gameScreen    reference to the {@link GameScreen}
      */
-    GameOverScreen(Assets assets,
-                   SpriteBatch spriteBatch,
-                   ScreenManager screenManager,
+    GameOverScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
                    GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
         Table menu = createMenu();
-        Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(
-                this.assets,
-                this.gameScreen.getComputerScore()
-        );
-        Label playerScoreLabel = ScreenUtils.createPlayerScoreLabel(
-                this.assets,
-                this.gameScreen.getPlayerScore()
-        );
+        Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets,
+                this.gameScreen.getComputerScore());
+        Label playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets,
+                this.gameScreen.getPlayerScore());
         this.stage.addActor(menu);
         this.stage.addActor(computerScoreLabel);
         this.stage.addActor(playerScoreLabel);
@@ -76,7 +70,7 @@ final class GameOverScreen extends BaseScreen {
     }
 
     private Label createWinnerLabel() {
-        String message = (gameScreen.hasPlayerWon())
+        String message = (gameScreen.getPlayerScore() > gameScreen.getComputerScore())
                 ? PLAYER_WINS_LABEL_TEXT : COMPUTER_WINS_LABEL_TEXT;
         return ScreenUtils.createLabel(assets.getLargeFont(), message);
     }

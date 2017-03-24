@@ -44,10 +44,8 @@ final class DifficultyScreen extends BaseScreen {
 
         // add difficulty label
         table.row();
-        Label difficultyLabel = ScreenUtils.createLabel(
-                assets.getLargeFont(),
-                DIFFICULTY_LABEL_TEXT
-        );
+        Label difficultyLabel = ScreenUtils.createLabel(assets.getLargeFont(),
+                DIFFICULTY_LABEL_TEXT);
         table.add(difficultyLabel).expandX();
 
         // add difficulty buttons

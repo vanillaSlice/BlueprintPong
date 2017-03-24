@@ -41,10 +41,8 @@ final class MainMenuScreen extends BaseScreen {
 
         // add title
         table.row();
-        Label titleLabel = ScreenUtils.createLabel(
-                assets.getExtraLargeFont(),
-                BlueprintPongGame.TITLE
-        );
+        Label titleLabel = ScreenUtils.createLabel(assets.getExtraLargeFont(),
+                BlueprintPongGame.TITLE);
         table.add(titleLabel).expandX();
 
         // add play button
@@ -54,11 +52,8 @@ final class MainMenuScreen extends BaseScreen {
 
         // add settings button
         table.row().padTop(COMPONENT_SPACING);
-        TextButton settingsButton = ScreenUtils.createSettingsButton(
-                assets,
-                spriteBatch,
-                screenManager
-        );
+        TextButton settingsButton = ScreenUtils.createSettingsButton(assets, spriteBatch,
+                screenManager);
         table.add(settingsButton).expandX();
 
         return table;

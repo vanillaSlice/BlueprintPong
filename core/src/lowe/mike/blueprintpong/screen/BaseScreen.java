@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.BlueprintPongGame;
+import lowe.mike.blueprintpong.Scaling;
 
 /**
  * Provides a base class for the {@link Screen}s in the game.
@@ -27,9 +28,10 @@ class BaseScreen extends ScreenAdapter {
     final Assets assets;
     final SpriteBatch spriteBatch;
     final ScreenManager screenManager;
-    final OrthographicCamera camera = new OrthographicCamera();
-    final Viewport viewport;
     final Stage stage;
+
+    private final OrthographicCamera camera = new OrthographicCamera();
+    private final Viewport viewport;
 
     /**
      * Creates a new {@code BaseScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -59,18 +61,15 @@ class BaseScreen extends ScreenAdapter {
         this.spriteBatch = spriteBatch;
         this.screenManager = screenManager;
         this.camera.setToOrtho(false);
-        this.viewport = new FitViewport(
-                BlueprintPongGame.VIRTUAL_WIDTH,
-                BlueprintPongGame.VIRTUAL_HEIGHT,
-                this.camera
-        );
+        this.viewport = new FitViewport(BlueprintPongGame.VIRTUAL_WIDTH,
+                BlueprintPongGame.VIRTUAL_HEIGHT, this.camera);
         this.stage = new Stage(this.viewport, this.spriteBatch);
         addBackground(backgroundTexture);
     }
 
     private void addBackground(Texture backgroundTexture) {
         Image background = new Image(backgroundTexture);
-        background.setScale(BlueprintPongGame.X_SCALE, BlueprintPongGame.Y_SCALE);
+        Scaling.scaleActor(background);
         stage.addActor(background);
     }
 

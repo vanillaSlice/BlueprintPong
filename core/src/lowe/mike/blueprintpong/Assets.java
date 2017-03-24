@@ -49,9 +49,9 @@ public final class Assets implements Disposable {
      * Font properties.
      */
     private static final Color FONT_COLOUR = Color.WHITE;
-    private static final int EXTRA_LARGE_VIRTUAL_FONT_SIZE = 56;
-    private static final int LARGE_VIRTUAL_FONT_SIZE = 36;
-    private static final int MEDIUM_VIRTUAL_FONT_SIZE = 24;
+    private static final int EXTRA_LARGE_FONT_SIZE = 252;
+    private static final int LARGE_FONT_SIZE = 162;
+    private static final int MEDIUM_FONT_SIZE = 108;
 
     private AssetManager assetManager = new AssetManager();
     private BitmapFont extraLargeFont;
@@ -91,22 +91,13 @@ public final class Assets implements Disposable {
 
     private void loadMainAssets() {
         // need this so we can load in fonts
-        assetManager.setLoader(
-                FreeTypeFontGenerator.class,
-                new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver())
-        );
-        loadAsset(
-                FONT_GENERATOR_ASSET_DESCRIPTOR,
-                BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
-                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
-                BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
-                LINE_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_TEXTURE_ASSET_DESCRIPTOR,
-                BALL_TEXTURE_ASSET_DESCRIPTOR,
-                PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
-                WALL_HIT_SOUND_ASSET_DESCRIPTOR,
-                POINT_SCORED_SOUND_ASSET_DESCRIPTOR
-        );
+        assetManager.setLoader(FreeTypeFontGenerator.class,
+                new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver()));
+        loadAsset(FONT_GENERATOR_ASSET_DESCRIPTOR, BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
+                BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR, BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
+                LINE_TEXTURE_ASSET_DESCRIPTOR, PADDLE_TEXTURE_ASSET_DESCRIPTOR,
+                BALL_TEXTURE_ASSET_DESCRIPTOR, PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
+                WALL_HIT_SOUND_ASSET_DESCRIPTOR, POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
     }
 
     /**
@@ -115,12 +106,8 @@ public final class Assets implements Disposable {
     public boolean isFinishedLoading() {
         if (assetManager.update()) {
             loadFonts();
-            addSmoothingFilter(
-                    getBackgroundTexture(),
-                    getLineTexture(),
-                    getPaddleTexture(),
-                    getBallTexture()
-            );
+            addSmoothingFilter(getBackgroundTexture(), getLineTexture(), getPaddleTexture(),
+                    getBallTexture());
             return true;
         } else {
             return false;
@@ -137,9 +124,9 @@ public final class Assets implements Disposable {
         parameter.minFilter = Texture.TextureFilter.Linear;
         parameter.magFilter = Texture.TextureFilter.Linear;
 
-        extraLargeFont = loadFont(fontGenerator, parameter, EXTRA_LARGE_VIRTUAL_FONT_SIZE);
-        largeFont = loadFont(fontGenerator, parameter, LARGE_VIRTUAL_FONT_SIZE);
-        mediumFont = loadFont(fontGenerator, parameter, MEDIUM_VIRTUAL_FONT_SIZE);
+        extraLargeFont = loadFont(fontGenerator, parameter, EXTRA_LARGE_FONT_SIZE);
+        largeFont = loadFont(fontGenerator, parameter, LARGE_FONT_SIZE);
+        mediumFont = loadFont(fontGenerator, parameter, MEDIUM_FONT_SIZE);
 
         // finished with font generator so dispose it
         assetManager.unload(FONT_GENERATOR_ASSET_DESCRIPTOR.fileName);
@@ -147,10 +134,10 @@ public final class Assets implements Disposable {
 
     private BitmapFont loadFont(FreeTypeFontGenerator fontGenerator,
                                 FreeTypeFontGenerator.FreeTypeFontParameter parameter,
-                                int virtualFontSize) {
-        parameter.size = (int) (virtualFontSize / BlueprintPongGame.X_SCALE);
+                                int fontSize) {
+        parameter.size = fontSize;
         BitmapFont font = fontGenerator.generateFont(parameter);
-        font.getData().setScale(BlueprintPongGame.X_SCALE, BlueprintPongGame.Y_SCALE);
+        Scaling.scaleFont(font);
         return font;
     }
 

@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
  */
 public enum Difficulty {
 
-    EASY("Easy"), MEDIUM("Medium"), HARD("Hard");
+    EASY("Easy", 100f), MEDIUM("Medium", 150f), HARD("Hard", 300f);
 
     private static final ObjectMap<String, Difficulty> stringToEnum
             = new ObjectMap<String, Difficulty>();
@@ -22,9 +22,11 @@ public enum Difficulty {
     }
 
     private final String string;
+    private final float computerPaddleSpeed; // in units per second
 
-    Difficulty(String string) {
+    Difficulty(String string, float computerPaddleSpeed) {
         this.string = string;
+        this.computerPaddleSpeed = computerPaddleSpeed;
     }
 
     /**
@@ -35,6 +37,13 @@ public enum Difficulty {
      */
     public static Difficulty fromString(String string) {
         return stringToEnum.get(string);
+    }
+
+    /**
+     * @return the computer paddle speed for this {@code Difficulty} (in units per second)
+     */
+    public float getComputerPaddleSpeed() {
+        return computerPaddleSpeed;
     }
 
     @Override

@@ -30,9 +30,7 @@ final class PauseScreen extends BaseScreen {
      * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
      * @param gameScreen    reference to the {@link GameScreen}
      */
-    PauseScreen(Assets assets,
-                SpriteBatch spriteBatch,
-                ScreenManager screenManager,
+    PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
                 GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
@@ -56,11 +54,8 @@ final class PauseScreen extends BaseScreen {
 
         // add settings button
         table.row().padBottom(COMPONENT_SPACING);
-        TextButton settingsButton = ScreenUtils.createSettingsButton(
-                assets,
-                spriteBatch,
-                screenManager
-        );
+        TextButton settingsButton = ScreenUtils.createSettingsButton(assets, spriteBatch,
+                screenManager);
         table.add(settingsButton);
 
         // add exit button
@@ -83,12 +78,17 @@ final class PauseScreen extends BaseScreen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (button.isChecked()) {
-                    screenManager.switchToPreviousScreen();
+                    switchToGameScreenAndResume();
                     button.setChecked(false);
                 }
             }
 
         });
+    }
+
+    private void switchToGameScreenAndResume() {
+        screenManager.switchToPreviousScreen();
+        gameScreen.resumeGame();
     }
 
     private TextButton createRestartButton() {
