@@ -257,20 +257,22 @@ final class GameScreen extends BaseScreen {
     }
 
     private void handlePaddleCollision() {
-        boolean hitPlayerPaddle = hitPlayerPaddle();
-        boolean hitComputerPaddle = hitComputerPaddle();
+        boolean hitPlayerPaddle = hitPaddle(playerPaddle);
+        boolean hitComputerPaddle = hitPaddle(computerPaddle);
         if (!hitPaddle && hitPlayerPaddle) {
             int sectionHit = getPaddleSectionHit(playerPaddle);
             float angle = BALL_ANGLES[sectionHit];
+            float speed = BALL_SPEEDS[sectionHit];
             ball.setAngle(angle);
-            ball.setSpeed(BALL_SPEEDS[sectionHit]);
+            ball.setSpeed(speed);
             playPaddleHitSound();
             hitPaddle = true;
         } else if (!hitPaddle && hitComputerPaddle) {
             int sectionHit = getPaddleSectionHit(computerPaddle);
             float angle = reflectAngleInYAxis(BALL_ANGLES[sectionHit]);
+            float speed = BALL_SPEEDS[sectionHit];
             ball.setAngle(angle);
-            ball.setSpeed(BALL_SPEEDS[sectionHit]);
+            ball.setSpeed(speed);
             playPaddleHitSound();
             hitPaddle = true;
         } else if (!hitPlayerPaddle && !hitComputerPaddle) {
@@ -278,27 +280,19 @@ final class GameScreen extends BaseScreen {
         }
     }
 
-    private boolean hitPlayerPaddle() {
-        float ballLeft = ball.getX();
-        float paddleLeft = playerPaddle.getX();
-        float paddleRight = paddleLeft + playerPaddle.getScaledWidth();
-        return ballLeft <= paddleRight && ballLeft >= paddleLeft && hitPaddle(playerPaddle);
-    }
-
-    private boolean hitComputerPaddle() {
-        float ballRight = ball.getX() + ball.getScaledWidth();
-        float paddleLeft = computerPaddle.getX();
-        float paddleRight = paddleLeft + computerPaddle.getScaledWidth();
-        return ballRight >= paddleLeft && ballRight <= paddleRight && hitPaddle(computerPaddle);
-    }
-
     private boolean hitPaddle(Paddle paddle) {
+        float ballLeft = ball.getX();
+        float ballRight = ballLeft + ball.getScaledWidth();
         float ballBottom = ball.getY();
         float ballTop = ballBottom + ball.getScaledHeight();
+        float paddleLeft = paddle.getX();
+        float paddleRight = paddleLeft + paddle.getScaledWidth();
         float paddleBottom = paddle.getY();
         float paddleTop = paddleBottom + paddle.getScaledHeight();
-        return (ballBottom >= paddleBottom && ballBottom <= paddleTop)
-                || (ballTop >= paddleBottom && ballTop <= paddleTop);
+        return ((ballLeft >= paddleLeft && ballLeft <= paddleRight)
+                || (ballRight >= paddleLeft && ballRight <= paddleRight))
+                && ((ballBottom >= paddleBottom && ballBottom <= paddleTop)
+                || (ballTop >= paddleBottom && ballTop <= paddleTop));
     }
 
     private int getPaddleSectionHit(Paddle paddle) {
