@@ -34,7 +34,8 @@ final class PauseScreen extends BaseScreen {
                 GameScreen gameScreen) {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
-        this.stage.addActor(createMenu());
+        Table menu = createMenu();
+        this.stage.addActor(menu);
     }
 
     private Table createMenu() {

@@ -23,7 +23,7 @@ public final class Scaling {
     /**
      * @param font the {@link BitmapFont} to scale
      */
-    public static void scaleFont(BitmapFont font) {
+    static void scaleFont(BitmapFont font) {
         font.getData().setScale(X_SCALE, Y_SCALE);
     }
 

@@ -30,14 +30,14 @@ class ScaledImage extends Image {
     /**
      * @return the scaled width
      */
-    public float getScaledWidth() {
+    public final float getScaledWidth() {
         return scaledWidth;
     }
 
     /**
      * @return the scaled height
      */
-    public float getScaledHeight() {
+    public final float getScaledHeight() {
         return scaledHeight;
     }
 

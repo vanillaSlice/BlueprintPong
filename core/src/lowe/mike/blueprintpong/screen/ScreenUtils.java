@@ -228,33 +228,8 @@ final class ScreenUtils {
     }
 
     /**
-     * Creates the computer score {@link Label} to be positioned
-     * on the left side of the {@link Screen}.
-     *
-     * @param assets {@link Assets} needed to create the {@link Label}
-     * @param score  the score to initialise the {@link Label} with
-     * @return a score {@link Label}
-     */
-    static Label createComputerScoreLabel(Assets assets, int score) {
-        Label label = createScoreLabel(assets);
-        updateComputerScoreLabel(label, score);
-        return label;
-    }
-
-    /**
-     * Updates the computer score {@link Label}'s text and position.
-     *
-     * @param label the {@link Label} to update
-     * @param score the score to update the {@link Label} with
-     */
-    static void updateComputerScoreLabel(Label label, int score) {
-        updateScoreLabelText(label, score);
-        updateScoreLabelPosition(label, .25f);
-    }
-
-    /**
      * Creates the player score {@link Label} to be positioned
-     * on the right side of the {@link Screen}.
+     * on the left side of the {@link Screen}.
      *
      * @param assets {@link Assets} needed to create the {@link Label}
      * @param score  the score to initialise the {@link Label} with
@@ -273,6 +248,31 @@ final class ScreenUtils {
      * @param score the score to update the {@link Label} with
      */
     static void updatePlayerScoreLabel(Label label, int score) {
+        updateScoreLabelText(label, score);
+        updateScoreLabelPosition(label, .25f);
+    }
+
+    /**
+     * Creates the computer score {@link Label} to be positioned
+     * on the right side of the {@link Screen}.
+     *
+     * @param assets {@link Assets} needed to create the {@link Label}
+     * @param score  the score to initialise the {@link Label} with
+     * @return a score {@link Label}
+     */
+    static Label createComputerScoreLabel(Assets assets, int score) {
+        Label label = createScoreLabel(assets);
+        updateComputerScoreLabel(label, score);
+        return label;
+    }
+
+    /**
+     * Updates the computer score {@link Label}'s text and position.
+     *
+     * @param label the {@link Label} to update
+     * @param score the score to update the {@link Label} with
+     */
+    static void updateComputerScoreLabel(Label label, int score) {
         updateScoreLabelText(label, score);
         updateScoreLabelPosition(label, .75f);
     }

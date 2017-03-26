@@ -1,7 +1,6 @@
 package lowe.mike.blueprintpong.actor;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -12,12 +11,11 @@ import com.badlogic.gdx.math.Vector2;
 public final class Paddle extends ScaledImage {
 
     /*
-     * Needed because paddle texture has margin that needs
-     * to be removed from the bounding box.
+     * Paddle is split into 8 equal sections.
      */
-    private static final float MARGIN = 8f;
+    public static final int SECTIONS = 8;
 
-    private final Rectangle bounds = new Rectangle();
+    private final float sectionSize;
     private float speed; // in units per second
     private final Vector2 start = new Vector2();
     private final Vector2 end = new Vector2();
@@ -32,20 +30,14 @@ public final class Paddle extends ScaledImage {
      */
     public Paddle(Texture texture) {
         super(texture);
-        this.bounds.setSize(getScaledWidth() - (MARGIN * 2 * getScaleX()), getScaledHeight());
-    }
-
-    @Override
-    protected void positionChanged() {
-        super.positionChanged();
-        bounds.setPosition(getX() + (MARGIN * getScaleX()), getY());
+        this.sectionSize = getScaledHeight() / SECTIONS;
     }
 
     /**
-     * @return this {@code Paddle}'s bounding {@link Rectangle}
+     * @return size of each section of this {@code Paddle}
      */
-    public Rectangle getBounds() {
-        return bounds;
+    public float getSectionSize() {
+        return sectionSize;
     }
 
     /**
@@ -56,30 +48,14 @@ public final class Paddle extends ScaledImage {
     }
 
     /**
-     * @param targetY the y position this {@code Paddle} should start moving towards
+     * @param y the y position this {@code Paddle} should start moving towards
      */
-    public void setTargetY(float targetY) {
+    public void setTargetY(float y) {
         start.y = getY();
-        end.y = targetY;
+        end.y = y;
         direction.y = new Vector2(0, end.y - start.y).nor().y;
         distance = start.dst(0, end.y);
         isMoving = true;
-    }
-
-    /**
-     * Updates this {@code Paddle}'s position, if required.
-     *
-     * @param delta time in seconds since the last frame
-     */
-    public void updatePosition(float delta) {
-        if (!isMoving) {
-            return;
-        }
-        moveBy(0, direction.y * speed * delta);
-        if (start.dst(0, getY()) >= distance) {
-            setY(end.y);
-            isMoving = false;
-        }
     }
 
     /**
@@ -98,6 +74,22 @@ public final class Paddle extends ScaledImage {
      */
     public void moveDown(float delta) {
         setTargetY(getY() - (speed * delta));
+    }
+
+    /**
+     * Updates this {@code Paddle}'s position, if required.
+     *
+     * @param delta time in seconds since the last frame
+     */
+    public void updatePosition(float delta) {
+        if (!isMoving) {
+            return;
+        }
+        moveBy(0, direction.y * speed * delta);
+        if (start.dst(0, getY()) >= distance) {
+            setY(end.y);
+            isMoving = false;
+        }
     }
 
 }

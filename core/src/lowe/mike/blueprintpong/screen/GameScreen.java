@@ -3,8 +3,8 @@ package lowe.mike.blueprintpong.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.BlueprintPongGame;
-import lowe.mike.blueprintpong.Difficulty;
 import lowe.mike.blueprintpong.GamePreferences;
 import lowe.mike.blueprintpong.Scaling;
 import lowe.mike.blueprintpong.actor.Ball;
@@ -31,25 +30,30 @@ final class GameScreen extends BaseScreen {
     private static final String PAUSE_BUTTON_TEXT = "Pause";
     private static final float PADDLE_OFFSET = 20f;
     private static final float PLAYER_PADDLE_SPEED = 200f; // in units per second
-    private static final float NORMAL_BALL_SPEED = 220f; // in units per second
-    private static final float FAST_BALL_SPEED = 225f; // in units per second
-    private static final float FASTEST_BALL_SPEED = 250f; // in units per second
     private static final int WINNING_SCORE = 11;
+    private static final float SOUND_VOLUME = .2f;
+
+    /*
+     * Ball speed changes dependent on where a paddle is hit (in units per second)
+     */
+    private static final float[] BALL_SPEEDS = {240f, 230f, 225f, 220f, 220f, 225f, 230f, 240f};
+    /*
+     * Ball angle changes dependent on where a paddle is hit
+     */
+    private static final float[] BALL_ANGLES = {220f, 205f, 190f, 180f, 180f, 170f, 155f, 140f};
 
     private final TextButton pauseButton;
-    private final Label computerScoreLabel;
     private final Label playerScoreLabel;
+    private final Label computerScoreLabel;
     private final Ball ball;
-    private final Paddle computerPaddle;
     private final Paddle playerPaddle;
-    private Difficulty difficulty;
+    private final Paddle computerPaddle;
     private boolean playSounds;
-    private int computerScore;
     private int playerScore;
+    private int computerScore;
     private boolean gameOver;
-    private float ballSpeed; // in units per second
-    private float ballAngle;
     private boolean hitWall;
+    private boolean hitPaddle;
 
     /**
      * Creates a new {@code GameScreen} given {@link Assets}, a {@link SpriteBatch}
@@ -63,17 +67,18 @@ final class GameScreen extends BaseScreen {
         super(assets, spriteBatch, screenManager);
         Image line = createLine();
         this.pauseButton = createPauseButton();
-        this.computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets, 0);
         this.playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets, 0);
+        this.computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets, 0);
         this.ball = new Ball(this.assets.getBallTexture());
-        this.computerPaddle = new Paddle(this.assets.getPaddleTexture());
-        this.playerPaddle = new Paddle(this.assets.getPaddleTexture());
+        this.playerPaddle = createPaddle();
+        this.playerPaddle.setSpeed(PLAYER_PADDLE_SPEED);
+        this.computerPaddle = createPaddle();
         this.stage.addActor(line);
-        this.stage.addActor(this.computerScoreLabel);
         this.stage.addActor(this.playerScoreLabel);
+        this.stage.addActor(this.computerScoreLabel);
         this.stage.addActor(this.ball);
-        this.stage.addActor(this.computerPaddle);
         this.stage.addActor(this.playerPaddle);
+        this.stage.addActor(this.computerPaddle);
         this.stage.addActor(this.pauseButton);
         newGame();
     }
@@ -114,55 +119,76 @@ final class GameScreen extends BaseScreen {
         screenManager.setScreen(new PauseScreen(assets, spriteBatch, screenManager, this));
     }
 
+    private Paddle createPaddle() {
+        return new Paddle(assets.getPaddleTexture());
+    }
+
     void newGame() {
         updatePreferences();
-        computerScore = 0;
-        ScreenUtils.updateComputerScoreLabel(computerScoreLabel, computerScore);
         playerScore = 0;
-        ScreenUtils.updatePlayerScoreLabel(playerScoreLabel, playerScore);
+        updatePlayerScoreLabel();
+        computerScore = 0;
+        updateComputerScoreLabel();
         gameOver = false;
-        resetBall();
-        resetComputerPaddle();
         resetPlayerPaddle();
-        newRound(true);
+        resetComputerPaddle();
+        newRound(MathUtils.randomBoolean());
     }
 
     private void updatePreferences() {
-        difficulty = GamePreferences.getDifficulty();
+        computerPaddle.setSpeed(GamePreferences.getDifficulty().getComputerPaddleSpeed());
         playSounds = GamePreferences.shouldPlaySounds();
     }
 
-    private void resetBall() {
-        float x = (BlueprintPongGame.VIRTUAL_WIDTH / 2f) - (ball.getScaledWidth() / 2f);
-        float y = (BlueprintPongGame.VIRTUAL_HEIGHT / 2f) - (ball.getScaledHeight() / 2f);
-        ball.setPosition(x, y);
+    private void updatePlayerScoreLabel() {
+        ScreenUtils.updatePlayerScoreLabel(playerScoreLabel, playerScore);
     }
 
-    private void resetComputerPaddle() {
-        float x = PADDLE_OFFSET;
-        float y = (BlueprintPongGame.VIRTUAL_HEIGHT / 2f) - (computerPaddle.getScaledHeight() / 2f);
-        computerPaddle.setPosition(x, y);
-        computerPaddle.setTargetY(y);
-        computerPaddle.setSpeed(difficulty.getComputerPaddleSpeed());
+    private void updateComputerScoreLabel() {
+        ScreenUtils.updateComputerScoreLabel(computerScoreLabel, computerScore);
     }
 
     private void resetPlayerPaddle() {
-        float x = BlueprintPongGame.VIRTUAL_WIDTH - PADDLE_OFFSET - playerPaddle.getScaledWidth();
-        float y = (BlueprintPongGame.VIRTUAL_HEIGHT / 2f) - (playerPaddle.getScaledHeight() / 2f);
-        playerPaddle.setPosition(x, y);
-        playerPaddle.setTargetY(y);
-        playerPaddle.setSpeed(PLAYER_PADDLE_SPEED);
+        resetPaddle(playerPaddle, PADDLE_OFFSET);
+    }
+
+    private void resetComputerPaddle() {
+        float x = BlueprintPongGame.VIRTUAL_WIDTH - PADDLE_OFFSET - computerPaddle.getScaledWidth();
+        resetPaddle(computerPaddle, x);
+    }
+
+    private void resetPaddle(Paddle paddle, float x) {
+        float y = (BlueprintPongGame.VIRTUAL_HEIGHT / 2f) - (paddle.getScaledHeight() / 2f);
+        paddle.setPosition(x, y);
+        paddle.setTargetY(y);
     }
 
     private void newRound(boolean serveToPlayer) {
-        ScreenUtils.updateComputerScoreLabel(computerScoreLabel, computerScore);
-        ScreenUtils.updatePlayerScoreLabel(playerScoreLabel, playerScore);
-        ballSpeed = NORMAL_BALL_SPEED;
-        if (serveToPlayer)
-            ballAngle = 180f;
-        else
-            ballAngle = 0f;
-        resetBall();
+        setRandomBallPosition();
+        setRandomBallAngle(serveToPlayer);
+        ball.setSpeed(BALL_SPEEDS[3]);
+    }
+
+    private void setRandomBallPosition() {
+        float x = (BlueprintPongGame.VIRTUAL_WIDTH / 2f) - (ball.getScaledWidth() / 2f);
+        float y = MathUtils.random(0, BlueprintPongGame.VIRTUAL_HEIGHT - ball.getScaledHeight());
+        ball.setPosition(x, y);
+    }
+
+    private void setRandomBallAngle(boolean serveToPlayer) {
+        float angle = BALL_ANGLES[MathUtils.random(BALL_ANGLES.length - 1)];
+        if (serveToPlayer) {
+            angle = reflectAngleInYAxis(angle);
+        }
+        ball.setAngle(angle);
+    }
+
+    private float reflectAngleInYAxis(float angle) {
+        return (540f - angle) % 360f;
+    }
+
+    private float reflectAngleInXAxis(float angle) {
+        return (720f - angle) % 360f;
     }
 
     void resumeGame() {
@@ -175,13 +201,10 @@ final class GameScreen extends BaseScreen {
             switchToGameOverScreen();
         } else {
             handleUserInput(delta);
-            updateBallPosition(delta);
-            handleCollisions(delta);
+            ball.updatePosition(delta);
             updateComputerPaddlePosition(delta);
+            handleCollisions();
             updateScore();
-            computerPaddle.updatePosition(delta);
-            validatePaddlePosition(playerPaddle);
-            validatePaddlePosition(computerPaddle);
         }
     }
 
@@ -194,126 +217,168 @@ final class GameScreen extends BaseScreen {
     private void handleUserInput(float delta) {
         if (pauseButton.isPressed()) {
             return;
-        }
-        calculatePlayerPaddleYPosition(delta);
-        //movePaddle(playerPaddle, y);
-    }
-
-    private void calculatePlayerPaddleYPosition(float delta) {
-        float y = playerPaddle.getY();
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            // move player paddle up
-            //y += (PLAYER_PADDLE_SPEED * delta);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             playerPaddle.moveUp(delta);
         } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            // move player paddle down
             playerPaddle.moveDown(delta);
         } else if (Gdx.input.isTouched()) {
-            // move paddle to touched y coordinate
             Vector2 touchCoordinates = new Vector2(0, Gdx.input.getY());
             touchCoordinates = stage.getViewport().unproject(touchCoordinates);
-            playerPaddle.setTargetY(touchCoordinates.y - (playerPaddle.getScaledHeight() / 2f));
+            float y = touchCoordinates.y - (playerPaddle.getScaledHeight() / 2f);
+            playerPaddle.setTargetY(y);
         }
         playerPaddle.updatePosition(delta);
-        // return y;
-
+        ensurePaddleIsInBounds(playerPaddle);
     }
 
-    private void validatePaddlePosition(Paddle paddle) {
+    private void ensurePaddleIsInBounds(Paddle paddle) {
         if (paddle.getY() < 0) {
             paddle.setY(0);
-        } else if (paddle.getY() + paddle.getScaledHeight()
-                > BlueprintPongGame.VIRTUAL_HEIGHT) {
-            paddle.setY(BlueprintPongGame.VIRTUAL_HEIGHT - playerPaddle.getScaledHeight());
+        } else if (paddle.getY() + paddle.getScaledHeight() > BlueprintPongGame.VIRTUAL_HEIGHT) {
+            float y = BlueprintPongGame.VIRTUAL_HEIGHT - paddle.getScaledHeight();
+            paddle.setY(y);
         }
     }
 
-    private void updateBallPosition(float delta) {
-        float x = ball.getX() - (MathUtils.cosDeg(ballAngle) * ballSpeed * delta);
-        float y = ball.getY() + (MathUtils.sinDeg(ballAngle) * ballSpeed * delta);
-        ball.setPosition(x, y);
+    /*
+     * Computer paddle follows the ball.
+     */
+    private void updateComputerPaddlePosition(float delta) {
+        float y = ball.getY() + (ball.getScaledHeight() / 2f) -
+                (computerPaddle.getScaledHeight() / 2f);
+        computerPaddle.setTargetY(y);
+        computerPaddle.updatePosition(delta);
+        ensurePaddleIsInBounds(computerPaddle);
     }
 
-    // look at adding actors again so we can easily scale
-    // create bounding boxes slightly larger than textures
-    private void handleCollisions(float delta) {
-        if (ball.getX() + ball.getScaledWidth() >= playerPaddle.getX() && ball.getX() <= playerPaddle.getX() + playerPaddle.getScaledWidth() && hitPaddle(playerPaddle)) {
-            //System.out.println(hitPaddle(playerPaddle));
+    private void handleCollisions() {
+        handlePaddleCollision();
+        handleWallCollision();
+    }
 
-            //ball.setX(playerPaddle.getX() - ball.getScaledWidth());
-
-            if (ball.getY() < playerPaddle.getY()) {
-                ballAngle = 320f;
-            } else if (ball.getY() >= playerPaddle.getY() + playerPaddle.getScaledHeight() - (ball.getScaledHeight() / 2f)) {
-                ballAngle = 40f;
-            } else {
-                ballAngle = 15f;
-            }
-
-
-            if (playSounds)
-                assets.getPaddleHitSound().play(.2f);
-        } else if (ball.getX() <= computerPaddle.getX() + computerPaddle.getScaledWidth()
-                && ball.getX() >= computerPaddle.getX()
-                && hitPaddle(computerPaddle)) {
-            // ball.setX(computerPaddle.getX() + computerPaddle.getScaledWidth());
-
-
-            if (ball.getY() < computerPaddle.getY()) {
-                ballAngle = 220f;
-            } else {
-                ballAngle = 165f;
-            }
-
-
-            if (playSounds)
-                assets.getPaddleHitSound().play(.2f);
+    private void handlePaddleCollision() {
+        boolean hitPlayerPaddle = hitPlayerPaddle();
+        boolean hitComputerPaddle = hitComputerPaddle();
+        if (!hitPaddle && hitPlayerPaddle) {
+            int sectionHit = getPaddleSectionHit(playerPaddle);
+            float angle = BALL_ANGLES[sectionHit];
+            ball.setAngle(angle);
+            ball.setSpeed(BALL_SPEEDS[sectionHit]);
+            playPaddleHitSound();
+            hitPaddle = true;
+        } else if (!hitPaddle && hitComputerPaddle) {
+            int sectionHit = getPaddleSectionHit(computerPaddle);
+            float angle = reflectAngleInYAxis(BALL_ANGLES[sectionHit]);
+            ball.setAngle(angle);
+            ball.setSpeed(BALL_SPEEDS[sectionHit]);
+            playPaddleHitSound();
+            hitPaddle = true;
+        } else if (!hitPlayerPaddle && !hitComputerPaddle) {
+            hitPaddle = false;
         }
+    }
 
-        if (!hitWall && ball.getY() <= 0) {
-            ballAngle = 180 - (ballAngle % 180);
-            if (playSounds)
-                assets.getWallHitSound().play(.2f);
-            ball.setY(0);
+    private boolean hitPlayerPaddle() {
+        float ballLeft = ball.getX();
+        float paddleLeft = playerPaddle.getX();
+        float paddleRight = paddleLeft + playerPaddle.getScaledWidth();
+        return ballLeft <= paddleRight && ballLeft >= paddleLeft && hitPaddle(playerPaddle);
+    }
+
+    private boolean hitComputerPaddle() {
+        float ballRight = ball.getX() + ball.getScaledWidth();
+        float paddleLeft = computerPaddle.getX();
+        float paddleRight = paddleLeft + computerPaddle.getScaledWidth();
+        return ballRight >= paddleLeft && ballRight <= paddleRight && hitPaddle(computerPaddle);
+    }
+
+    private boolean hitPaddle(Paddle paddle) {
+        float ballBottom = ball.getY();
+        float ballTop = ballBottom + ball.getScaledHeight();
+        float paddleBottom = paddle.getY();
+        float paddleTop = paddleBottom + paddle.getScaledHeight();
+        return (ballBottom >= paddleBottom && ballBottom <= paddleTop)
+                || (ballTop >= paddleBottom && ballTop <= paddleTop);
+    }
+
+    private int getPaddleSectionHit(Paddle paddle) {
+        float ballY = ball.getY();
+        float paddleY = paddle.getY() + paddle.getSectionSize();
+        for (int i = 0; i < Paddle.SECTIONS; i++) {
+            if (ballY <= paddleY) {
+                return i;
+            }
+            paddleY += paddle.getSectionSize();
+        }
+        return Paddle.SECTIONS - 1;
+    }
+
+    private void handleWallCollision() {
+        boolean hitTopWall = hitTopWall();
+        boolean hitBottomWall = hitBottomWall();
+        if (!hitWall && hitTopWall) {
+            float angle = reflectAngleInXAxis(ball.getAngle());
+            float y = BlueprintPongGame.VIRTUAL_HEIGHT - ball.getScaledHeight();
+            ball.setAngle(angle);
+            ball.setY(y);
+            playWallHitSound();
             hitWall = true;
-        } else if (!hitWall && ball.getY() + ball.getScaledHeight() >= BlueprintPongGame.VIRTUAL_HEIGHT) {
-            ballAngle = 360 - (ballAngle % 180);
-            if (playSounds)
-                assets.getWallHitSound().play(.2f);
-            ball.setY(BlueprintPongGame.VIRTUAL_HEIGHT - ball.getScaledHeight());
+        } else if (!hitWall && hitBottomWall) {
+            float angle = reflectAngleInXAxis(ball.getAngle());
+            float y = 0;
+            ball.setAngle(angle);
+            ball.setY(y);
+            playWallHitSound();
             hitWall = true;
-        } else if (hitWall) {
+        } else if (!hitTopWall && !hitBottomWall) {
             hitWall = false;
         }
     }
 
-    private boolean hitPaddle(Paddle paddle) {
-        return (ball.getY() >= paddle.getY() && ball.getY() <= paddle.getY() + paddle.getScaledHeight())
-                || (ball.getY() + ball.getScaledHeight() >= paddle.getY() && ball.getY() + ball.getScaledHeight() <= paddle.getY() + paddle.getScaledHeight());
+    private boolean hitTopWall() {
+        return ball.getY() + ball.getScaledHeight() >= BlueprintPongGame.VIRTUAL_HEIGHT;
     }
 
-    private void updateComputerPaddlePosition(float delta) {
-        computerPaddle.setTargetY(ball.getY() + (ball.getScaledHeight() / 2f) - (computerPaddle.getScaledHeight() / 2f));
+    private boolean hitBottomWall() {
+        return ball.getY() <= 0;
+    }
+
+    private void playPaddleHitSound() {
+        playSound(assets.getPaddleHitSound());
+    }
+
+    private void playWallHitSound() {
+        playSound(assets.getWallHitSound());
+    }
+
+    private void playSound(Sound sound) {
+        if (playSounds) {
+            sound.play(SOUND_VOLUME);
+        }
     }
 
     private void updateScore() {
-        // has computer scored
-        if (ball.getX() > BlueprintPongGame.VIRTUAL_WIDTH) {
-            computerScore++;
-            if (playSounds)
-                assets.getPointScoredSound().play(.2f);
-            newRound(false);
-        }
         // has player scored
-        else if ((ball.getX() + (ball.getWidth() * ball.getScaleX())) < 0) {
+        if (ball.getX() > BlueprintPongGame.VIRTUAL_WIDTH) {
             playerScore++;
-            if (playSounds)
-                assets.getPointScoredSound().play(.2f);
+            updatePlayerScoreLabel();
+            playPointScoredSound();
             newRound(true);
+        }
+        // has computer scored
+        else if (ball.getX() < -ball.getScaledWidth()) {
+            computerScore++;
+            updateComputerScoreLabel();
+            playPointScoredSound();
+            newRound(false);
         }
         if (playerScore == WINNING_SCORE || computerScore == WINNING_SCORE) {
             gameOver = true;
         }
+    }
+
+    private void playPointScoredSound() {
+        playSound(assets.getPointScoredSound());
     }
 
     /**

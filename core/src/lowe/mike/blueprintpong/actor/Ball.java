@@ -1,8 +1,8 @@
 package lowe.mike.blueprintpong.actor;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * Represents the ball in the game.
@@ -11,7 +11,9 @@ import com.badlogic.gdx.math.Rectangle;
  */
 public final class Ball extends ScaledImage {
 
-    private final Circle bounds = new Circle();
+    private float speed; // in units per second
+    private float angle; // in degrees e.g. 0f = left, 90f = up, 180f = right, 270f = down
+    private final Vector2 direction = new Vector2();
 
     /**
      * Creates a new {@code Ball} given the {@link Texture}.
@@ -20,30 +22,45 @@ public final class Ball extends ScaledImage {
      */
     public Ball(Texture texture) {
         super(texture);
-        this.bounds.setRadius(getScaledWidth() / 2f);
-    }
-
-    @Override
-    protected void positionChanged() {
-        super.positionChanged();
-        float x = getX() + (getScaledWidth() / 2f);
-        float y = getY() + (getScaledHeight() / 2f);
-        bounds.setPosition(x, y);
     }
 
     /**
-     * @return this {@code Ball}'s bounding {@link Circle}
+     * @param speed the speed of this {@code Ball} (in units per second)
      */
-    public Circle getBounds() {
-        return bounds;
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 
-    //set speed
+    /**
+     * @param angle the angle this {@code Ball} is travelling at
+     */
+    public void setAngle(float angle) {
+        this.angle = angle;
+        updateDirection();
+    }
 
-    //set angle
+    private void updateDirection() {
+        float x = -MathUtils.cosDeg(angle);
+        float y = MathUtils.sinDeg(angle);
+        direction.set(x, y);
+    }
 
-    //get angle
+    /**
+     * @return the angle this {@code Ball} is travelling at
+     */
+    public float getAngle() {
+        return angle;
+    }
 
-    //update position
+    /**
+     * Updates this {@code Ball}'s position.
+     *
+     * @param delta time in seconds since the last frame
+     */
+    public void updatePosition(float delta) {
+        float x = direction.x * speed * delta;
+        float y = direction.y * speed * delta;
+        moveBy(x, y);
+    }
 
 }

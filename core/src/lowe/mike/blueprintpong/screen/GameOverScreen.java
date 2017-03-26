@@ -17,8 +17,8 @@ import lowe.mike.blueprintpong.Assets;
  */
 final class GameOverScreen extends BaseScreen {
 
-    private static final String COMPUTER_WINS_LABEL_TEXT = "Computer Wins";
     private static final String PLAYER_WINS_LABEL_TEXT = "You Win";
+    private static final String COMPUTER_WINS_LABEL_TEXT = "Computer Wins";
     private static final String PLAY_AGAIN_BUTTON_TEXT = "Play Again";
 
     private final GameScreen gameScreen;
@@ -37,13 +37,13 @@ final class GameOverScreen extends BaseScreen {
         super(assets, spriteBatch, screenManager);
         this.gameScreen = gameScreen;
         Table menu = createMenu();
-        Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets,
-                this.gameScreen.getComputerScore());
         Label playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets,
                 this.gameScreen.getPlayerScore());
+        Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets,
+                this.gameScreen.getComputerScore());
         this.stage.addActor(menu);
-        this.stage.addActor(computerScoreLabel);
         this.stage.addActor(playerScoreLabel);
+        this.stage.addActor(computerScoreLabel);
     }
 
     private Table createMenu() {
