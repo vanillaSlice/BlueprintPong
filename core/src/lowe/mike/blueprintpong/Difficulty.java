@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.ObjectMap;
  */
 public enum Difficulty {
 
-    EASY("Easy", 90f), MEDIUM("Medium", 105f), HARD("Hard", 120f);
+    EASY("Easy", 80f), MEDIUM("Medium", 105f), HARD("Hard", 125f);
 
     private static final ObjectMap<String, Difficulty> stringToEnum
             = new ObjectMap<String, Difficulty>();
