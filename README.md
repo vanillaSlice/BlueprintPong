@@ -1,4 +1,4 @@
-# BlueprintPong
+# Blueprint Pong
 This is a Pong clone written using libGDX
 
 ## Screenshot
