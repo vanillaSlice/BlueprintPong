@@ -12,33 +12,33 @@ import lowe.mike.blueprintpong.Scaling;
  */
 class ScaledImage extends Image {
 
-    private final float scaledWidth;
-    private final float scaledHeight;
+  private final float scaledWidth;
+  private final float scaledHeight;
 
-    /**
-     * Creates a new {@code ScaledImage} given a {@link Texture}.
-     *
-     * @param texture the {@link Texture}
-     */
-    ScaledImage(Texture texture) {
-        super(texture);
-        Scaling.scaleActor(this);
-        this.scaledWidth = getWidth() * getScaleX();
-        this.scaledHeight = getHeight() * getScaleY();
-    }
+  /**
+   * Creates a new {@code ScaledImage} given a {@link Texture}.
+   *
+   * @param texture the {@link Texture}
+   */
+  ScaledImage(Texture texture) {
+    super(texture);
+    Scaling.scaleActor(this);
+    this.scaledWidth = getWidth() * getScaleX();
+    this.scaledHeight = getHeight() * getScaleY();
+  }
 
-    /**
-     * @return the scaled width
-     */
-    public final float getScaledWidth() {
-        return scaledWidth;
-    }
+  /**
+   * @return the scaled width
+   */
+  public final float getScaledWidth() {
+    return scaledWidth;
+  }
 
-    /**
-     * @return the scaled height
-     */
-    public final float getScaledHeight() {
-        return scaledHeight;
-    }
+  /**
+   * @return the scaled height
+   */
+  public final float getScaledHeight() {
+    return scaledHeight;
+  }
 
 }

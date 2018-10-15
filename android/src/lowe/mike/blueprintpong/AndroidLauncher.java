@@ -12,19 +12,19 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
  */
 public final class AndroidLauncher extends AndroidApplication {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        BlueprintPongGame game = new BlueprintPongGame();
-        AndroidApplicationConfiguration config = initialiseConfig();
-        initialize(game, config);
-    }
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    BlueprintPongGame game = new BlueprintPongGame();
+    AndroidApplicationConfiguration config = initialiseConfig();
+    initialize(game, config);
+  }
 
-    private static AndroidApplicationConfiguration initialiseConfig() {
-        AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        config.useAccelerometer = false;
-        config.useCompass = false;
-        return config;
-    }
+  private static AndroidApplicationConfiguration initialiseConfig() {
+    AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+    config.useAccelerometer = false;
+    config.useCompass = false;
+    return config;
+  }
 
 }

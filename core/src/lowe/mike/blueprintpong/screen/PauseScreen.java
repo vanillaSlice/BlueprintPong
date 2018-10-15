@@ -16,105 +16,105 @@ import lowe.mike.blueprintpong.Assets;
  */
 final class PauseScreen extends BaseScreen {
 
-    private static final String RESUME_BUTTON_TEXT = "Resume";
-    private static final String RESTART_BUTTON_TEXT = "Restart";
+  private static final String RESUME_BUTTON_TEXT = "Resume";
+  private static final String RESTART_BUTTON_TEXT = "Restart";
 
-    private final GameScreen gameScreen;
+  private final GameScreen gameScreen;
 
-    /**
-     * Creates a new {@code PauseScreen} given {@link Assets}, a {@link SpriteBatch}, a
-     * {@link ScreenManager} and a reference to the {@link GameScreen}.
-     *
-     * @param assets        {@link Assets} containing assets used in the {@link Screen}
-     * @param spriteBatch   {@link SpriteBatch} to add sprites to
-     * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
-     * @param gameScreen    reference to the {@link GameScreen}
-     */
-    PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
-                GameScreen gameScreen) {
-        super(assets, spriteBatch, screenManager);
-        this.gameScreen = gameScreen;
-        Table menu = createMenu();
-        this.stage.addActor(menu);
-    }
+  /**
+   * Creates a new {@code PauseScreen} given {@link Assets}, a {@link SpriteBatch}, a
+   * {@link ScreenManager} and a reference to the {@link GameScreen}.
+   *
+   * @param assets        {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
+   * @param gameScreen    reference to the {@link GameScreen}
+   */
+  PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
+              GameScreen gameScreen) {
+    super(assets, spriteBatch, screenManager);
+    this.gameScreen = gameScreen;
+    Table menu = createMenu();
+    this.stage.addActor(menu);
+  }
 
-    private Table createMenu() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
+  private Table createMenu() {
+    Table table = new Table();
+    table.setFillParent(true);
+    table.center();
 
-        // add resume button
-        table.row().padBottom(COMPONENT_SPACING);
-        TextButton resumeButton = createResumeButton();
-        table.add(resumeButton).expandX();
+    // add resume button
+    table.row().padBottom(COMPONENT_SPACING);
+    TextButton resumeButton = createResumeButton();
+    table.add(resumeButton).expandX();
 
-        // add restart button
-        table.row().padBottom(COMPONENT_SPACING);
-        TextButton restartButton = createRestartButton();
-        table.add(restartButton).expandX();
+    // add restart button
+    table.row().padBottom(COMPONENT_SPACING);
+    TextButton restartButton = createRestartButton();
+    table.add(restartButton).expandX();
 
-        // add settings button
-        table.row().padBottom(COMPONENT_SPACING);
-        TextButton settingsButton = ScreenUtils.createSettingsButton(assets, spriteBatch,
-                screenManager);
-        table.add(settingsButton);
+    // add settings button
+    table.row().padBottom(COMPONENT_SPACING);
+    TextButton settingsButton = ScreenUtils.createSettingsButton(assets, spriteBatch,
+        screenManager);
+    table.add(settingsButton);
 
-        // add exit button
-        table.row();
-        TextButton exitButton = ScreenUtils.createExitButton(assets, spriteBatch, screenManager);
-        table.add(exitButton).expandX();
+    // add exit button
+    table.row();
+    TextButton exitButton = ScreenUtils.createExitButton(assets, spriteBatch, screenManager);
+    table.add(exitButton).expandX();
 
-        return table;
-    }
+    return table;
+  }
 
-    private TextButton createResumeButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, RESUME_BUTTON_TEXT);
-        addResumeButtonListener(button);
-        return button;
-    }
+  private TextButton createResumeButton() {
+    TextButton button = ScreenUtils.createTextButton(assets, RESUME_BUTTON_TEXT);
+    addResumeButtonListener(button);
+    return button;
+  }
 
-    private void addResumeButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
+  private void addResumeButtonListener(final TextButton button) {
+    button.addListener(new ChangeListener() {
 
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToGameScreenAndResume();
-                    button.setChecked(false);
-                }
-            }
+      @Override
+      public void changed(ChangeEvent event, Actor actor) {
+        if (button.isChecked()) {
+          switchToGameScreenAndResume();
+          button.setChecked(false);
+        }
+      }
 
-        });
-    }
+    });
+  }
 
-    private void switchToGameScreenAndResume() {
-        screenManager.switchToPreviousScreen();
-        gameScreen.resumeGame();
-    }
+  private void switchToGameScreenAndResume() {
+    screenManager.switchToPreviousScreen();
+    gameScreen.resumeGame();
+  }
 
-    private TextButton createRestartButton() {
-        TextButton button = ScreenUtils.createTextButton(assets, RESTART_BUTTON_TEXT);
-        addRestartButtonListener(button);
-        return button;
-    }
+  private TextButton createRestartButton() {
+    TextButton button = ScreenUtils.createTextButton(assets, RESTART_BUTTON_TEXT);
+    addRestartButtonListener(button);
+    return button;
+  }
 
-    private void addRestartButtonListener(final TextButton button) {
-        button.addListener(new ChangeListener() {
+  private void addRestartButtonListener(final TextButton button) {
+    button.addListener(new ChangeListener() {
 
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if (button.isChecked()) {
-                    switchToGameScreenAndRestart();
-                    button.setChecked(false);
-                }
-            }
+      @Override
+      public void changed(ChangeEvent event, Actor actor) {
+        if (button.isChecked()) {
+          switchToGameScreenAndRestart();
+          button.setChecked(false);
+        }
+      }
 
-        });
-    }
+    });
+  }
 
-    private void switchToGameScreenAndRestart() {
-        screenManager.switchToPreviousScreen();
-        gameScreen.newGame();
-    }
+  private void switchToGameScreenAndRestart() {
+    screenManager.switchToPreviousScreen();
+    gameScreen.newGame();
+  }
 
 }
