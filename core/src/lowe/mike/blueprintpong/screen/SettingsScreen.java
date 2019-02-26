@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.Difficulty;
 import lowe.mike.blueprintpong.GamePreferences;
@@ -29,11 +28,11 @@ final class SettingsScreen extends BaseScreen {
   private static final String OFF_BUTTON_TEXT = "Off";
 
   /**
-   * Creates a new {@code SettingsScreen} given {@link Assets}, a {@link SpriteBatch}
-   * and a {@link ScreenManager}.
+   * Creates a new {@code SettingsScreen} given {@link Assets}, a {@link SpriteBatch} and a {@link
+   * ScreenManager}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
    */
   SettingsScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
@@ -57,10 +56,8 @@ final class SettingsScreen extends BaseScreen {
 
     // add difficulty buttons
     table.row();
-    Label difficultyLabel = ScreenUtils.createLabel(assets.getMediumFont(),
-        DIFFICULTY_LABEL_TEXT);
-    ButtonGroup<TextButton> difficultyButtonGroup
-        = ScreenUtils.createDifficultyButtonGroup(assets);
+    Label difficultyLabel = ScreenUtils.createLabel(assets.getMediumFont(), DIFFICULTY_LABEL_TEXT);
+    ButtonGroup<TextButton> difficultyButtonGroup = ScreenUtils.createDifficultyButtonGroup(assets);
     addButtonGroup(table, difficultyLabel, difficultyButtonGroup);
 
     // add sound buttons
@@ -122,5 +119,4 @@ final class SettingsScreen extends BaseScreen {
       table.add(button).expandX().align(Align.left);
     }
   }
-
 }

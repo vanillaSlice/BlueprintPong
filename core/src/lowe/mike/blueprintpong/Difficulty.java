@@ -3,8 +3,7 @@ package lowe.mike.blueprintpong;
 import com.badlogic.gdx.utils.ObjectMap;
 
 /**
- * {@code Difficulty} enum represents the various difficulties
- * of the game.
+ * {@code Difficulty} enum represents the various difficulties of the game.
  *
  * @author Mike Lowe
  */
@@ -50,5 +49,4 @@ public enum Difficulty {
   public String toString() {
     return string;
   }
-
 }

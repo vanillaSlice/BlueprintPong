@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-
 import lowe.mike.blueprintpong.Assets;
 
 /**
@@ -22,16 +21,18 @@ final class PauseScreen extends BaseScreen {
   private final GameScreen gameScreen;
 
   /**
-   * Creates a new {@code PauseScreen} given {@link Assets}, a {@link SpriteBatch}, a
-   * {@link ScreenManager} and a reference to the {@link GameScreen}.
+   * Creates a new {@code PauseScreen} given {@link Assets}, a {@link SpriteBatch}, a {@link
+   * ScreenManager} and a reference to the {@link GameScreen}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
-   * @param gameScreen    reference to the {@link GameScreen}
+   * @param gameScreen reference to the {@link GameScreen}
    */
-  PauseScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
-              GameScreen gameScreen) {
+  PauseScreen(Assets assets,
+      SpriteBatch spriteBatch,
+      ScreenManager screenManager,
+      GameScreen gameScreen) {
     super(assets, spriteBatch, screenManager);
     this.gameScreen = gameScreen;
     Table menu = createMenu();
@@ -55,8 +56,8 @@ final class PauseScreen extends BaseScreen {
 
     // add settings button
     table.row().padBottom(COMPONENT_SPACING);
-    TextButton settingsButton = ScreenUtils.createSettingsButton(assets, spriteBatch,
-        screenManager);
+    TextButton settingsButton =
+        ScreenUtils.createSettingsButton(assets, spriteBatch, screenManager);
     table.add(settingsButton);
 
     // add exit button
@@ -116,5 +117,4 @@ final class PauseScreen extends BaseScreen {
     screenManager.switchToPreviousScreen();
     gameScreen.newGame();
   }
-
 }

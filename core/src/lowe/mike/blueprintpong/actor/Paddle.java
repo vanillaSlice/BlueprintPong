@@ -91,5 +91,4 @@ public final class Paddle extends ScaledImage {
       isMoving = false;
     }
   }
-
 }

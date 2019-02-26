@@ -2,7 +2,6 @@ package lowe.mike.blueprintpong;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import lowe.mike.blueprintpong.screen.ScreenManager;
 import lowe.mike.blueprintpong.screen.SplashScreen;
 
@@ -35,5 +34,4 @@ public final class BlueprintPongGame extends Game {
     spriteBatch.dispose();
     screenManager.dispose();
   }
-
 }

@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.utils.Disposable;
 
 /**
- * {@code Assets} provides access to assets, such as {@link Texture}s,
- * used in the <i>Blueprint Pong</i> game.
+ * {@code Assets} provides access to assets, such as {@link Texture}s, used in the <i>Blueprint
+ * Pong</i> game.
  *
  * @author Mike Lowe
  */
@@ -91,13 +91,22 @@ public final class Assets implements Disposable {
 
   private void loadMainAssets() {
     // need this so we can load in fonts
-    assetManager.setLoader(FreeTypeFontGenerator.class,
-        new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver()));
-    loadAsset(FONT_GENERATOR_ASSET_DESCRIPTOR, BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
-        BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR, BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
-        LINE_TEXTURE_ASSET_DESCRIPTOR, PADDLE_TEXTURE_ASSET_DESCRIPTOR,
-        BALL_TEXTURE_ASSET_DESCRIPTOR, PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
-        WALL_HIT_SOUND_ASSET_DESCRIPTOR, POINT_SCORED_SOUND_ASSET_DESCRIPTOR);
+    assetManager.setLoader(
+        FreeTypeFontGenerator.class,
+        new FreeTypeFontGeneratorLoader(new InternalFileHandleResolver())
+    );
+    loadAsset(
+        FONT_GENERATOR_ASSET_DESCRIPTOR,
+        BACKGROUND_TEXTURE_ASSET_DESCRIPTOR,
+        BUTTON_UP_TEXTURE_ASSET_DESCRIPTOR,
+        BUTTON_DOWN_TEXTURE_ASSET_DESCRIPTOR,
+        LINE_TEXTURE_ASSET_DESCRIPTOR,
+        PADDLE_TEXTURE_ASSET_DESCRIPTOR,
+        BALL_TEXTURE_ASSET_DESCRIPTOR,
+        PADDLE_HIT_SOUND_ASSET_DESCRIPTOR,
+        WALL_HIT_SOUND_ASSET_DESCRIPTOR,
+        POINT_SCORED_SOUND_ASSET_DESCRIPTOR
+    );
   }
 
   /**
@@ -106,8 +115,12 @@ public final class Assets implements Disposable {
   public boolean isFinishedLoading() {
     if (assetManager.update()) {
       loadFonts();
-      addSmoothingFilter(getBackgroundTexture(), getLineTexture(), getPaddleTexture(),
-          getBallTexture());
+      addSmoothingFilter(
+          getBackgroundTexture(),
+          getLineTexture(),
+          getPaddleTexture(),
+          getBallTexture()
+      );
       return true;
     } else {
       return false;
@@ -117,8 +130,8 @@ public final class Assets implements Disposable {
   private void loadFonts() {
     FreeTypeFontGenerator fontGenerator = assetManager.get(FONT_GENERATOR_ASSET_DESCRIPTOR);
 
-    FreeTypeFontGenerator.FreeTypeFontParameter parameter
-        = new FreeTypeFontGenerator.FreeTypeFontParameter();
+    FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+        new FreeTypeFontGenerator.FreeTypeFontParameter();
     parameter.color = FONT_COLOUR;
     // apply smoothing filters
     parameter.minFilter = Texture.TextureFilter.Linear;
@@ -133,8 +146,8 @@ public final class Assets implements Disposable {
   }
 
   private BitmapFont loadFont(FreeTypeFontGenerator fontGenerator,
-                              FreeTypeFontGenerator.FreeTypeFontParameter parameter,
-                              int fontSize) {
+      FreeTypeFontGenerator.FreeTypeFontParameter parameter,
+      int fontSize) {
     parameter.size = fontSize;
     BitmapFont font = fontGenerator.generateFont(parameter);
     Scaling.scaleFont(font);
@@ -248,5 +261,4 @@ public final class Assets implements Disposable {
     largeFont.dispose();
     mediumFont.dispose();
   }
-
 }

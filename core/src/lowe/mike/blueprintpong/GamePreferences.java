@@ -59,5 +59,4 @@ public final class GamePreferences {
   public static void setPlaySounds(boolean playSounds) {
     getPreferences().putBoolean(PLAY_SOUNDS_KEY, playSounds).flush();
   }
-
 }

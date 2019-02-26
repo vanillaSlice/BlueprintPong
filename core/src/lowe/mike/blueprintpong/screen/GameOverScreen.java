@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-
 import lowe.mike.blueprintpong.Assets;
 
 /**
@@ -24,23 +23,25 @@ final class GameOverScreen extends BaseScreen {
   private final GameScreen gameScreen;
 
   /**
-   * Creates a new {@code GameOverScreen} given {@link Assets}, a {@link SpriteBatch}, a
-   * {@link ScreenManager} and a reference to the {@link GameScreen}.
+   * Creates a new {@code GameOverScreen} given {@link Assets}, a {@link SpriteBatch}, a {@link
+   * ScreenManager} and a reference to the {@link GameScreen}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
-   * @param gameScreen    reference to the {@link GameScreen}
+   * @param gameScreen reference to the {@link GameScreen}
    */
-  GameOverScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager,
-                 GameScreen gameScreen) {
+  GameOverScreen(Assets assets,
+      SpriteBatch spriteBatch,
+      ScreenManager screenManager,
+      GameScreen gameScreen) {
     super(assets, spriteBatch, screenManager);
     this.gameScreen = gameScreen;
     Table menu = createMenu();
-    Label playerScoreLabel = ScreenUtils.createPlayerScoreLabel(this.assets,
-        this.gameScreen.getPlayerScore());
-    Label computerScoreLabel = ScreenUtils.createComputerScoreLabel(this.assets,
-        this.gameScreen.getComputerScore());
+    Label playerScoreLabel =
+        ScreenUtils.createPlayerScoreLabel(this.assets, this.gameScreen.getPlayerScore());
+    Label computerScoreLabel =
+        ScreenUtils.createComputerScoreLabel(this.assets, this.gameScreen.getComputerScore());
     this.stage.addActor(menu);
     this.stage.addActor(playerScoreLabel);
     this.stage.addActor(computerScoreLabel);
@@ -99,5 +100,4 @@ final class GameOverScreen extends BaseScreen {
     screenManager.switchToPreviousScreen();
     gameScreen.newGame();
   }
-
 }

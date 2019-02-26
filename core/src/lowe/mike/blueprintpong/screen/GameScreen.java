@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-
 import lowe.mike.blueprintpong.Assets;
 import lowe.mike.blueprintpong.BlueprintPongGame;
 import lowe.mike.blueprintpong.GamePreferences;
@@ -56,11 +55,11 @@ final class GameScreen extends BaseScreen {
   private boolean hitPaddle;
 
   /**
-   * Creates a new {@code GameScreen} given {@link Assets}, a {@link SpriteBatch}
-   * and a {@link ScreenManager}.
+   * Creates a new {@code GameScreen} given {@link Assets}, a {@link SpriteBatch} and a {@link
+   * ScreenManager}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
    */
   GameScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
@@ -244,8 +243,7 @@ final class GameScreen extends BaseScreen {
    * Computer paddle follows the ball.
    */
   private void updateComputerPaddlePosition(float delta) {
-    float y = ball.getY() + (ball.getScaledHeight() / 2f) -
-        (computerPaddle.getScaledHeight() / 2f);
+    float y = ball.getY() + (ball.getScaledHeight() / 2f) - (computerPaddle.getScaledHeight() / 2f);
     computerPaddle.setTargetY(y);
     computerPaddle.updatePosition(delta);
     ensurePaddleIsInBounds(computerPaddle);
@@ -393,5 +391,4 @@ final class GameScreen extends BaseScreen {
   public void pause() {
     switchToPauseScreen();
   }
-
 }

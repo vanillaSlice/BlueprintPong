@@ -2,7 +2,6 @@ package lowe.mike.blueprintpong.screen;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import lowe.mike.blueprintpong.Assets;
 
 /**
@@ -13,11 +12,11 @@ import lowe.mike.blueprintpong.Assets;
 public final class SplashScreen extends BaseScreen {
 
   /**
-   * Creates a new {@code SplashScreen} given {@link Assets}, a {@link SpriteBatch}
-   * and a {@link ScreenManager}.
+   * Creates a new {@code SplashScreen} given {@link Assets}, a {@link SpriteBatch} and a {@link
+   * ScreenManager}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
    */
   public SplashScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
@@ -44,5 +43,4 @@ public final class SplashScreen extends BaseScreen {
     // dispose this because it won't be used again
     assets.disposeSplashBackgroundTexture();
   }
-
 }

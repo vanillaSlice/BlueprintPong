@@ -2,7 +2,6 @@ package lowe.mike.blueprintpong.actor;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-
 import lowe.mike.blueprintpong.Scaling;
 
 /**
@@ -40,5 +39,4 @@ class ScaledImage extends Image {
   public final float getScaledHeight() {
     return scaledHeight;
   }
-
 }

@@ -33,5 +33,4 @@ public final class Scaling {
   public static void scaleActor(Actor actor) {
     actor.setScale(X_SCALE, Y_SCALE);
   }
-
 }

@@ -9,12 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
-
 import lowe.mike.blueprintpong.Assets;
 
 /**
- * Difficulty screen to show just before the player enters
- * the game.
+ * Difficulty screen to show just before the player enters the game.
  *
  * @author Mike Lowe
  */
@@ -24,11 +22,11 @@ final class DifficultyScreen extends BaseScreen {
   private static final String PLAY_BUTTON_TEXT = "Play";
 
   /**
-   * Creates a new {@code DifficultyScreen} given {@link Assets}, a {@link SpriteBatch}
-   * and a {@link ScreenManager}.
+   * Creates a new {@code DifficultyScreen} given {@link Assets}, a {@link SpriteBatch} and a {@link
+   * ScreenManager}.
    *
-   * @param assets        {@link Assets} containing assets used in the {@link Screen}
-   * @param spriteBatch   {@link SpriteBatch} to add sprites to
+   * @param assets {@link Assets} containing assets used in the {@link Screen}
+   * @param spriteBatch {@link SpriteBatch} to add sprites to
    * @param screenManager the {@link ScreenManager} used to manage game {@link Screen}s
    */
   DifficultyScreen(Assets assets, SpriteBatch spriteBatch, ScreenManager screenManager) {
@@ -44,8 +42,7 @@ final class DifficultyScreen extends BaseScreen {
 
     // add difficulty label
     table.row();
-    Label difficultyLabel = ScreenUtils.createLabel(assets.getLargeFont(),
-        DIFFICULTY_LABEL_TEXT);
+    Label difficultyLabel = ScreenUtils.createLabel(assets.getLargeFont(), DIFFICULTY_LABEL_TEXT);
     table.add(difficultyLabel).expandX();
 
     // add difficulty buttons
@@ -107,5 +104,4 @@ final class DifficultyScreen extends BaseScreen {
     screenManager.disposeAndClearAllScreens();
     screenManager.setScreen(new GameScreen(assets, spriteBatch, screenManager));
   }
-
 }

@@ -62,5 +62,4 @@ public final class Ball extends ScaledImage {
     float y = direction.y * speed * delta;
     moveBy(x, y);
   }
-
 }
