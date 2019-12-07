@@ -1,7 +1,7 @@
 # Blueprint Pong
 
 [![Latest Release](https://img.shields.io/github/release/vanillaSlice/BlueprintPong.svg)](https://github.com/vanillaSlice/BlueprintPong/releases/latest)
-[![Build Status](https://img.shields.io/travis/vanillaSlice/BlueprintPong/master.svg)](https://travis-ci.org/vanillaSlice/BlueprintPong)
+[![Build Status](https://img.shields.io/travis/com/vanillaSlice/BlueprintPong/master.svg)](https://travis-ci.com/vanillaSlice/BlueprintPong)
 [![License](https://img.shields.io/github/license/vanillaSlice/BlueprintPong.svg)](LICENSE)
 
 A Pong clone built using [libGDX](https://libgdx.badlogicgames.com/).
